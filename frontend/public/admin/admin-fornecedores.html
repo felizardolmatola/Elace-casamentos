@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Painel de administração — Fornecedores | Enlace casamentos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0B4870',
+            ink: '#1F1F1F',
+            paper: '#FFFFFF',
+            mist: '#F5F5F5',
+            line: '#EFEBE2',
+          },
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root { --azul-claro: #0B4870; }
+    body { font-family: 'Inter', sans-serif; color: #1F1F1F; background: #F5F5F5; }
+    .font-display { font-family: 'Playfair Display', serif; }
+    .btn-primary { background: var(--azul-claro); color: #fff; transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(11,72,112,.5); }
+    .btn-primary:disabled { opacity: .5; transform: none; box-shadow: none; cursor: not-allowed; }
+    .btn-outline { border: 1.5px solid var(--azul-claro); color: var(--azul-claro); transition: background .15s ease; }
+    .btn-outline:hover { background: rgba(11,72,112,.08); }
+    .btn-ghost { color: #6B6B6B; transition: color .15s ease, background .15s ease; }
+    .btn-ghost:hover { color: #1F1F1F; background: #EFEBE2; }
+    .btn-danger { color: #B3261E; transition: background .15s ease; }
+    .btn-danger:hover { background: #FDEDEC; }
+    input, textarea, select { font-size: 16px; }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--azul-claro); outline-offset: 1px; }
+    .field-label { font-size: 12px; font-weight: 600; color: #6B6B6B; margin-bottom: 4px; display:block; }
+    .cat-row.active { background: rgba(11,72,112,.08); border-color: var(--azul-claro); }
+    .modal-backdrop { background: rgba(31,31,31,.55); }
+    .toast { animation: toastIn .25s ease both, toastOut .25s ease 2.6s both; }
+    @keyframes toastIn { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform: translateY(0);} }
+    @keyframes toastOut { to { opacity:0; transform: translateY(-6px);} }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #D8D3C8; border-radius: 8px; }
+    .drag-handle { cursor: grab; }
+    .tag-off { background:#F5F5F5; color:#9A9A9A; border:1px dashed #D8D3C8; }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <!-- ===================== PORTA DE ACESSO ===================== -->
+  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-mist px-4">
+    <div class="w-full max-w-sm bg-white rounded-2xl border border-line p-6 sm:p-8 shadow-xl">
+      <p class="uppercase tracking-[0.2em] text-[11px] font-semibold text-primary">Área reservada</p>
+      <h1 class="font-display text-2xl mt-2 mb-1">Painel de administração</h1>
+      <p class="text-sm text-[#555] mb-5">Introduza a palavra-passe para gerir os fornecedores do site.</p>
+      <input id="gateInput" type="password" placeholder="Palavra-passe"
+        class="w-full h-11 px-4 rounded-lg border border-line bg-mist mb-2" autocomplete="off">
+      <p id="gateError" class="text-xs text-[#B3261E] mb-3 hidden">Palavra-passe incorreta. Tente novamente.</p>
+      <button id="gateBtn" class="w-full h-11 rounded-lg btn-primary font-semibold text-sm">Entrar</button>
+      <p class="text-[11px] text-[#9A9A9A] mt-4 leading-relaxed">
+        Nota: esta proteção é apenas um obstáculo básico contra visitantes casuais — não é segurança real.
+        Para um site em produção, restrinja o acesso a esta página no servidor ou por autenticação própria.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================== APP ===================== -->
+  <div id="app" class="hidden min-h-screen">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-white sticky top-0 z-30 border-b border-line">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-16 sm:h-20 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="uppercase tracking-[0.15em] text-[10px] sm:text-[11px] font-semibold text-primary">Enlace casamentos</p>
+          <h1 class="font-display text-lg sm:text-2xl leading-tight truncate">Gestão de fornecedores</h1>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span id="saveStatus" class="hidden sm:inline text-xs text-[#8A8A8A] mr-1"></span>
+          <button id="btnImport" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-ghost text-xs font-semibold">Importar JSON</button>
+          <button id="btnExport" class="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-outline text-xs sm:text-sm font-semibold">Descarregar dados</button>
+          <a href="./fornecedores.html" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-primary text-xs sm:text-sm font-semibold">Ver página pública</a>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-3 flex flex-wrap gap-2 sm:hidden">
+        <button id="btnImportMobile" class="px-3 h-9 rounded-lg btn-ghost text-xs font-semibold">Importar JSON</button>
+        <a href="./fornecedores.html" target="_blank" class="px-3 h-9 rounded-lg btn-primary text-xs font-semibold inline-flex items-center">Ver página pública</a>
+      </div>
+    </header>
+
+    <input id="importFile" type="file" accept="application/json" class="hidden">
+
+    <!-- AVISO DE FLUXO -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-4">
+      <div class="bg-white border border-line rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-[#555] leading-relaxed flex gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+          <strong class="text-ink">Como publicar as alterações:</strong> as edições feitas aqui ficam guardadas neste
+          navegador. Para que apareçam na página pública <code class="bg-mist px-1 rounded">fornecedores.html</code>,
+          clique em <strong>"Descarregar dados"</strong> e carregue o ficheiro <code class="bg-mist px-1 rounded">fornecedores-data.json</code>
+          gerado para o servidor do site, na mesma pasta do ficheiro <code class="bg-mist px-1 rounded">fornecedores.html</code>
+          (substituindo o anterior).
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTEÚDO -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+
+      <!-- LISTA DE CATEGORIAS -->
+      <aside class="bg-white border border-line rounded-2xl p-3 h-fit lg:sticky lg:top-28">
+        <div class="flex items-center justify-between px-2 pt-1 pb-3">
+          <h2 class="font-display text-lg">Categorias</h2>
+        </div>
+        <div id="catList" class="flex flex-col gap-1 max-h-[50vh] lg:max-h-[60vh] overflow-y-auto pr-1"></div>
+        <button id="btnAddCat" class="mt-3 w-full h-10 rounded-lg btn-outline text-sm font-semibold">+ Nova categoria</button>
+      </aside>
+
+      <!-- EDITOR DA CATEGORIA -->
+      <section id="catEditor"></section>
+    </main>
+  </div>
+
+  <!-- ===================== MODAL FORNECEDOR ===================== -->
+  <div id="vendorModal" class="fixed inset-0 z-40 hidden items-center justify-center modal-backdrop px-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="vmTitle" class="font-display text-xl">Fornecedor</h3>
+        <button id="vmClose" class="w-8 h-8 rounded-full btn-ghost flex items-center justify-center">✕</button>
+      </div>
+      <form id="vmForm" class="space-y-3">
+        <div>
+          <label class="field-label">Nome do fornecedor *</label>
+          <input id="vmNome" required class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label">Faixa de custo</label>
+            <select id="vmCost" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+              <option value="baixo">Baixo custo</option>
+              <option value="alto">Alto custo</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Estado</label>
+            <select id="vmAtivo" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+              <option value="true">Visível no site</option>
+              <option value="false">Oculto (rascunho)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Preço / faixa de preço *</label>
+          <input id="vmPreco" required placeholder="Ex: 8.000 – 14.000 MT" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+        </div>
+        <div>
+          <label class="field-label">Descrição curta *</label>
+          <textarea id="vmDesc" required rows="2" class="w-full px-3 py-2 rounded-lg border border-line bg-mist resize-none"></textarea>
+        </div>
+        <div>
+          <label class="field-label">Imagem</label>
+          <input id="vmImagem" placeholder="URL de uma foto (https://...) ou um texto curto para gerar um marcador"
+            class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          <p class="text-[11px] text-[#9A9A9A] mt-1">Se colar um endereço de imagem, ele é usado diretamente. Caso contrário, é gerado um marcador com o texto indicado.</p>
+        </div>
+        <div class="border-t border-line pt-3 mt-1">
+          <p class="field-label mb-2">Contacto (opcional, aparece como botão no cartão)</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="field-label">Telefone</label>
+              <input id="vmTelefone" placeholder="84 000 0000" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            </div>
+            <div>
+              <label class="field-label">WhatsApp</label>
+              <input id="vmWhatsapp" placeholder="258 84 000 0000" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            </div>
+            <div>
+              <label class="field-label">E-mail</label>
+              <input id="vmEmail" type="email" placeholder="contacto@fornecedor.co.mz" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            </div>
+            <div>
+              <label class="field-label">Site / Instagram</label>
+              <input id="vmLink" placeholder="https://instagram.com/..." class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="field-label">Endereço</label>
+            <input id="vmEndereco" placeholder="Bairro, cidade" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+        </div>
+        <div class="flex items-center justify-between gap-3 pt-2">
+          <button type="button" id="vmDelete" class="px-4 h-11 rounded-lg btn-danger text-sm font-semibold">Eliminar</button>
+          <div class="flex gap-2">
+            <button type="button" id="vmCancel" class="px-4 h-11 rounded-lg btn-ghost text-sm font-semibold">Cancelar</button>
+            <button type="submit" class="px-5 h-11 rounded-lg btn-primary text-sm font-semibold">Guardar fornecedor</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div id="toastHost" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end"></div>
+
+  <script>
+    /* ======================= CONFIGURAÇÃO ======================= */
+    const ADMIN_PASSWORD = 'enlace2026'; // altere esta palavra-passe
+    const STORAGE_KEY = 'fornecedores-data';
+
+    const ICON_PRESETS = {
+      catering: '<path stroke-linecap="round" stroke-linejoin="round" d="M7 3v7a3 3 0 006 0V3M10 3v7M7 3h6M10 13v8M17 3v18M17 3c2 2 2 5 0 7"/>',
+      fotografia: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 7h4l1.5-2h5L16 7h4v12H4V7z"/><circle cx="12" cy="13" r="3.5"/>',
+      'musica-dj': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="3.5"/><circle cx="16.5" cy="16" r="3.5"/>',
+      decoracao: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 21c0-5 0-9 4-12M12 15c-4 0-7-2-7-5 3-1 6 0 7 3M12 11c0-4 2-7 5-7 1 3 0 6-3 8M12 18c4-1 7 0 8 3-3 1-6 0-8-3z"/>',
+      'vestidos-fatos': '<path stroke-linecap="round" stroke-linejoin="round" d="M9 4a3 3 0 006 0M10 7l-3 4 3 1-2 9h8l-2-9 3-1-3-4"/>',
+      viaturas: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 17h14l-1-7H6l-1 7zM7 10l1.5-4h7L17 10M7 17v2M17 17v2M7 14h.01M17 14h.01"/>',
+      flores: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 21c0-5 0-8 3-11M12 15c-3 0-6-2-6-5 3-1 6 0 6 3M12 11c0-3 2-6 5-6 1 3 0 6-3 7M12 17c3-1 6 0 7 3-3 1-6 0-7-3z"/>',
+      'espacos-eventos': '<path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V9h14v12M3 9l9-6 9 6M8 12v6M12 12v6M16 12v6"/>',
+      convites: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 7l9 6 9-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z"/>',
+      'lua-de-mel': '<path stroke-linecap="round" stroke-linejoin="round" d="M21 12.5A8.5 8.5 0 1111.5 3a7 7 0 009.5 9.5z"/>',
+      maquilhagem: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 3l2 2-6 6-2.5.5L3 9l6-6zM14 21l-3-3M14 21c3-1 7-5 7-9a4 4 0 00-8 0c0 4 4 8 7 9z"/>',
+      geral: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 3l2.6 5.6L21 9.3l-4.5 4.2 1.1 6.2L12 16.8l-5.6 2.9 1.1-6.2L3 9.3l6.4-.7L12 3z"/>',
+    };
+    const ICON_LABELS = {
+      catering: 'Catering', fotografia: 'Fotografia', 'musica-dj': 'Música/DJ', decoracao: 'Decoração',
+      'vestidos-fatos': 'Vestidos e fatos', viaturas: 'Viaturas', flores: 'Flores', 'espacos-eventos': 'Espaços',
+      convites: 'Convites', 'lua-de-mel': 'Lua de mel', maquilhagem: 'Maquilhagem/Beleza', geral: 'Geral',
+    };
+
+    let DATA = [];
+    let selectedSlug = null;
+    let vmContext = { mode: 'add', cost: 'baixo', catSlug: null, vendorId: null };
+
+    /* ======================= ARMAZENAMENTO ======================= */
+    async function storageGet(key) {
+      if (window.storage) {
+        try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; }
+        catch (e) { return null; }
+      }
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
+      catch (e) { return null; }
+    }
+    async function storageSet(key, value) {
+      if (window.storage) {
+        try { await window.storage.set(key, JSON.stringify(value), true); return true; }
+        catch (e) { return false; }
+      }
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+      catch (e) { return false; }
+    }
+
+    async function loadSeed() {
+      try {
+        const res = await fetch('./fornecedores-data.json');
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      return [];
+    }
+
+    async function init() {
+      const saved = await storageGet(STORAGE_KEY);
+      DATA = saved && Array.isArray(saved) && saved.length ? saved : await loadSeed();
+      if (!DATA.length) DATA = [emptyCategory()];
+      selectedSlug = DATA[0].slug;
+      renderCatList();
+      renderEditor();
+    }
+
+    function emptyCategory() {
+      return { slug: 'nova-categoria-' + Date.now(), nome: 'Nova categoria', icone: 'geral', desc: '', baixo: [], alto: [] };
+    }
+
+    function slugify(str) {
+      return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ('cat-' + Date.now());
+    }
+
+    let saveTimer = null;
+    function scheduleSave() {
+      const status = document.getElementById('saveStatus');
+      status.textContent = 'A guardar…';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async () => {
+        const ok = await storageSet(STORAGE_KEY, DATA);
+        status.textContent = ok ? 'Guardado às ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : 'Falha ao guardar neste navegador';
+      }, 400);
+    }
+
+    function toast(msg) {
+      const host = document.getElementById('toastHost');
+      const el = document.createElement('div');
+      el.className = 'toast bg-ink text-white text-sm px-4 py-2.5 rounded-lg shadow-lg';
+      el.textContent = msg;
+      host.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
+
+    /* ======================= LISTA DE CATEGORIAS ======================= */
+    function renderCatList() {
+      const el = document.getElementById('catList');
+      el.innerHTML = '';
+      DATA.forEach(cat => {
+        const total = cat.baixo.length + cat.alto.length;
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'cat-row flex items-center gap-2.5 w-full text-left px-3 py-2.5 rounded-lg border border-transparent hover:bg-mist' + (cat.slug === selectedSlug ? ' active' : '');
+        row.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-primary shrink-0" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">${ICON_PRESETS[cat.icone] || ICON_PRESETS.geral}</svg>
+          <span class="flex-1 min-w-0 truncate text-sm font-medium">${escapeHtml(cat.nome)}</span>
+          <span class="text-[11px] text-[#9A9A9A] shrink-0">${total}</span>`;
+        row.addEventListener('click', () => { selectedSlug = cat.slug; renderCatList(); renderEditor(); });
+        el.appendChild(row);
+      });
+    }
+
+    /* ======================= EDITOR DE CATEGORIA ======================= */
+    function renderEditor() {
+      const cat = DATA.find(c => c.slug === selectedSlug);
+      const host = document.getElementById('catEditor');
+      if (!cat) { host.innerHTML = '<p class="text-sm text-[#8A8A8A]">Sem categoria selecionada.</p>'; return; }
+
+      const iconOptions = Object.keys(ICON_PRESETS).map(key =>
+        `<option value="${key}" ${cat.icone === key ? 'selected' : ''}>${ICON_LABELS[key]}</option>`).join('');
+
+      host.innerHTML = `
+        <div class="bg-white border border-line rounded-2xl p-4 sm:p-6 mb-6">
+          <div class="flex items-start justify-between gap-3 mb-4">
+            <h2 class="font-display text-xl">Detalhes da categoria</h2>
+            <button id="btnDeleteCat" class="px-3 h-9 rounded-lg btn-danger text-xs font-semibold shrink-0">Eliminar categoria</button>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="field-label">Nome da categoria</label>
+              <input id="catNome" value="${escapeAttr(cat.nome)}" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            </div>
+            <div>
+              <label class="field-label">Ícone</label>
+              <select id="catIcone" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">${iconOptions}</select>
+            </div>
+          </div>
+          <div class="mt-3">
+            <label class="field-label">Descrição (aparece no topo da categoria)</label>
+            <textarea id="catDesc" rows="2" class="w-full px-3 py-2 rounded-lg border border-line bg-mist resize-none">${escapeHtml(cat.desc)}</textarea>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          ${renderCostColumn(cat, 'baixo', 'Baixo custo')}
+          ${renderCostColumn(cat, 'alto', 'Alto custo')}
+        </div>
+      `;
+
+      document.getElementById('catNome').addEventListener('input', e => { cat.nome = e.target.value; renderCatList(); scheduleSave(); });
+      document.getElementById('catIcone').addEventListener('change', e => { cat.icone = e.target.value; renderCatList(); scheduleSave(); });
+      document.getElementById('catDesc').addEventListener('input', e => { cat.desc = e.target.value; scheduleSave(); });
+      document.getElementById('btnDeleteCat').addEventListener('click', () => {
+        if (!confirm(`Eliminar a categoria "${cat.nome}" e todos os seus fornecedores?`)) return;
+        DATA = DATA.filter(c => c.slug !== cat.slug);
+        if (!DATA.length) DATA = [emptyCategory()];
+        selectedSlug = DATA[0].slug;
+        renderCatList(); renderEditor(); scheduleSave();
+        toast('Categoria eliminada');
+      });
+
+      cat.baixo.concat(cat.alto).forEach(v => {}); // no-op, ids already present
+      bindVendorButtons(cat);
+    }
+
+    function renderCostColumn(cat, costKey, label) {
+      const list = cat[costKey];
+      const cards = list.map(v => vendorRow(v, costKey)).join('') ||
+        `<p class="text-sm text-[#9A9A9A] px-1 py-4">Ainda sem fornecedores nesta faixa.</p>`;
+      return `
+        <div class="bg-white border border-line rounded-2xl p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display text-lg">${label}</h3>
+            <button data-add-cost="${costKey}" class="add-vendor-btn px-3 h-9 rounded-lg btn-outline text-xs font-semibold">+ Adicionar</button>
+          </div>
+          <div class="flex flex-col gap-2">${cards}</div>
+        </div>`;
+    }
+
+    function vendorRow(v, costKey) {
+      const off = v.ativo === false;
+      return `
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-line ${off ? 'opacity-60' : ''}">
+          <div class="w-11 h-11 rounded-lg overflow-hidden bg-mist shrink-0">
+            <img src="${thumbSrc(v)}" class="w-full h-full object-cover" alt="">
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold truncate">${escapeHtml(v.nome)} ${off ? '<span class="tag-off text-[10px] font-semibold px-1.5 py-0.5 rounded ml-1">Oculto</span>' : ''}</p>
+            <p class="text-xs text-[#8A8A8A] truncate">${escapeHtml(v.preco)}</p>
+          </div>
+          <button data-edit-vendor="${v.id}" data-cost="${costKey}" class="edit-vendor-btn px-2.5 h-8 rounded-lg btn-ghost text-xs font-semibold shrink-0">Editar</button>
+        </div>`;
+    }
+
+    function thumbSrc(v) {
+      if (v.imagem && /^https?:\/\//i.test(v.imagem)) return v.imagem;
+      return `https://placehold.co/80x80/1F1F1F/FFFFFF?text=${encodeURIComponent((v.imagem || v.nome || '?').slice(0,10))}`;
+    }
+
+    function bindVendorButtons(cat) {
+      document.querySelectorAll('.add-vendor-btn').forEach(btn => {
+        btn.addEventListener('click', () => openVendorModal({ mode: 'add', cost: btn.dataset.addCost, catSlug: cat.slug, vendorId: null }));
+      });
+      document.querySelectorAll('.edit-vendor-btn').forEach(btn => {
+        btn.addEventListener('click', () => openVendorModal({ mode: 'edit', cost: btn.dataset.cost, catSlug: cat.slug, vendorId: btn.dataset.editVendor }));
+      });
+    }
+
+    /* ======================= MODAL FORNECEDOR ======================= */
+    const modal = document.getElementById('vendorModal');
+    function openVendorModal(ctx) {
+      vmContext = ctx;
+      const cat = DATA.find(c => c.slug === ctx.catSlug);
+      const list = cat[ctx.cost];
+      const vendor = ctx.mode === 'edit' ? list.find(v => v.id === ctx.vendorId) : null;
+
+      document.getElementById('vmTitle').textContent = ctx.mode === 'edit' ? 'Editar fornecedor' : 'Novo fornecedor';
+      document.getElementById('vmNome').value = vendor?.nome || '';
+      document.getElementById('vmCost').value = ctx.cost;
+      document.getElementById('vmAtivo').value = vendor ? String(vendor.ativo !== false) : 'true';
+      document.getElementById('vmPreco').value = vendor?.preco || '';
+      document.getElementById('vmDesc').value = vendor?.desc || '';
+      document.getElementById('vmImagem').value = vendor?.imagem || '';
+      document.getElementById('vmTelefone').value = vendor?.telefone || '';
+      document.getElementById('vmWhatsapp').value = vendor?.whatsapp || '';
+      document.getElementById('vmEmail').value = vendor?.email || '';
+      document.getElementById('vmLink').value = vendor?.link || '';
+      document.getElementById('vmEndereco').value = vendor?.endereco || '';
+      document.getElementById('vmDelete').classList.toggle('hidden', ctx.mode !== 'edit');
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    function closeVendorModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    document.getElementById('vmClose').addEventListener('click', closeVendorModal);
+    document.getElementById('vmCancel').addEventListener('click', closeVendorModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeVendorModal(); });
+
+    document.getElementById('vmForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const cat = DATA.find(c => c.slug === vmContext.catSlug);
+      const newCost = document.getElementById('vmCost').value;
+      const payload = {
+        nome: document.getElementById('vmNome').value.trim(),
+        preco: document.getElementById('vmPreco').value.trim(),
+        desc: document.getElementById('vmDesc').value.trim(),
+        imagem: document.getElementById('vmImagem').value.trim(),
+        telefone: document.getElementById('vmTelefone').value.trim(),
+        whatsapp: document.getElementById('vmWhatsapp').value.trim(),
+        email: document.getElementById('vmEmail').value.trim(),
+        link: document.getElementById('vmLink').value.trim(),
+        endereco: document.getElementById('vmEndereco').value.trim(),
+        ativo: document.getElementById('vmAtivo').value === 'true',
+      };
+      if (!payload.nome || !payload.preco || !payload.desc) return;
+
+      if (vmContext.mode === 'add') {
+        payload.id = 'v' + Date.now() + Math.floor(Math.random() * 1000);
+        cat[newCost].push(payload);
+      } else {
+        const fromList = cat[vmContext.cost];
+        const idx = fromList.findIndex(v => v.id === vmContext.vendorId);
+        const existing = fromList[idx];
+        const updated = { ...existing, ...payload };
+        if (newCost !== vmContext.cost) {
+          fromList.splice(idx, 1);
+          cat[newCost].push(updated);
+        } else {
+          fromList[idx] = updated;
+        }
+      }
+      closeVendorModal();
+      renderCatList();
+      renderEditor();
+      scheduleSave();
+      toast('Fornecedor guardado');
+    });
+
+    document.getElementById('vmDelete').addEventListener('click', () => {
+      if (!confirm('Eliminar este fornecedor?')) return;
+      const cat = DATA.find(c => c.slug === vmContext.catSlug);
+      cat[vmContext.cost] = cat[vmContext.cost].filter(v => v.id !== vmContext.vendorId);
+      closeVendorModal();
+      renderCatList();
+      renderEditor();
+      scheduleSave();
+      toast('Fornecedor eliminado');
+    });
+
+    /* ======================= NOVA CATEGORIA ======================= */
+    document.getElementById('btnAddCat').addEventListener('click', () => {
+      const nome = prompt('Nome da nova categoria:');
+      if (!nome || !nome.trim()) return;
+      const cat = { slug: slugify(nome), nome: nome.trim(), icone: 'geral', desc: '', baixo: [], alto: [] };
+      DATA.push(cat);
+      selectedSlug = cat.slug;
+      renderCatList(); renderEditor(); scheduleSave();
+      toast('Categoria criada');
+    });
+
+    /* ======================= EXPORTAR / IMPORTAR ======================= */
+    function exportData() {
+      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'fornecedores-data.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast('Ficheiro descarregado');
+    }
+    document.getElementById('btnExport').addEventListener('click', exportData);
+
+    function triggerImport() { document.getElementById('importFile').click(); }
+    document.getElementById('btnImport').addEventListener('click', triggerImport);
+    document.getElementById('btnImportMobile').addEventListener('click', triggerImport);
+    document.getElementById('importFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (!Array.isArray(parsed)) throw new Error('formato inválido');
+        DATA = parsed;
+        selectedSlug = DATA[0]?.slug || null;
+        renderCatList(); renderEditor(); scheduleSave();
+        toast('Dados importados com sucesso');
+      } catch (err) {
+        alert('Não foi possível importar este ficheiro. Verifique se é um JSON exportado deste painel.');
+      }
+      e.target.value = '';
+    });
+
+    /* ======================= UTIL ======================= */
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    }
+    function escapeAttr(str) { return escapeHtml(str); }
+
+    /* ======================= ACESSO ======================= */
+    // Guarda a sessão de acesso em sessionStorage quando disponível (só funciona
+    // quando o ficheiro é aberto num navegador normal / servidor real). Dentro do
+    // pré-visualizador da Claude essa API pode estar bloqueada, por isso qualquer
+    // falha é ignorada em silêncio e a pessoa simplesmente reintroduz a palavra-passe.
+    function markAuthed() { try { sessionStorage.setItem('fornecedores-admin-auth', '1'); } catch (e) {} }
+    function wasAuthed() { try { return sessionStorage.getItem('fornecedores-admin-auth') === '1'; } catch (e) { return false; } }
+
+    const gate = document.getElementById('gate');
+    const app = document.getElementById('app');
+    function tryEnter() {
+      const val = document.getElementById('gateInput').value;
+      if (val === ADMIN_PASSWORD) {
+        markAuthed();
+        gate.classList.add('hidden');
+        app.classList.remove('hidden');
+        init();
+      } else {
+        document.getElementById('gateError').classList.remove('hidden');
+      }
+    }
+    document.getElementById('gateBtn').addEventListener('click', tryEnter);
+    document.getElementById('gateInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryEnter(); });
+
+    if (wasAuthed()) {
+      gate.classList.add('hidden');
+      app.classList.remove('hidden');
+      init();
+    }
+  </script>
+</body>
+
+</html>

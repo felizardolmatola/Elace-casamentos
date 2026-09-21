@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Casal — Enlace</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <link rel="icon" type="image/png" href="./assets/img/icons/icon.png">
+<style>
+  :root{
+    --branco-gelo:#FFFFFF;
+    --preto-grafite:#1F1F1F;
+    --azul-claro:#0B4870;
+    --verde-salvia:#A3B18A;
+    --cinza-claro:#F5F5F5;
+  }
+  body{font-family:'Inter',sans-serif; color:var(--preto-grafite); background:var(--cinza-claro);}
+  .font-display{font-family:'Playfair Display',serif;}
+  .btn-gold{background:var(--azul-claro); color:#FFFFFF; transition:transform .2s ease, box-shadow .2s ease;}
+  .btn-gold:hover{transform:translateY(-1px); box-shadow:0 10px 24px -8px rgba(11,72,112,.55);}
+  .btn-outline-gold{border:1.5px solid var(--azul-claro); color:var(--preto-grafite); transition:background .2s ease;}
+  .btn-outline-gold:hover{background:rgba(11,72,112,.08);}
+  .nav-item{transition:background .15s ease, color .15s ease;}
+  .nav-item:hover{background:#F5F5F5;}
+  .nav-item.active{background:rgba(11,72,112,.08); color:var(--preto-grafite); font-weight:600;}
+  .nav-item.active .nav-dot{background:var(--azul-claro);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .progress-fill{background:linear-gradient(90deg,#0B4870,#3d7ba8);}
+  .status-pill{font-size:11px; font-weight:600; padding:3px 10px; border-radius:9999px;}
+  .card{transition:box-shadow .2s ease, border-color .2s ease, transform .2s ease; border:1px solid transparent;}
+  .card:hover{box-shadow:0 16px 32px -20px rgba(11,72,112,.18); border-color:var(--azul-claro); transform:translateY(-2px);}
+  .rsvp-choice-btn{background:#fff; color:#666;}
+  .rsvp-choice-btn.selected-yes{background:rgba(163,177,138,.18); color:#5c6b47; border-color:var(--verde-salvia) !important;}
+  .rsvp-choice-btn.selected-no{background:rgba(31,31,31,.06); color:#1F1F1F; border-color:#1F1F1F !important;}
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-thumb{background:#DCE3E9; border-radius:4px;}
+
+  /* ---- Mobile sidebar drawer ---- */
+  #sidebar-overlay{transition:opacity .2s ease;}
+  @media (max-width: 1023px){
+    #sidebar{
+      position:fixed; inset:0 auto 0 0; z-index:50;
+      transform:translateX(-100%);
+      transition:transform .25s ease;
+      width:min(80vw, 288px);
+    }
+    #sidebar.open{transform:translateX(0);}
+  }
+</style>
+</head>
+<body class="antialiased">
+
+<div class="min-h-screen flex">
+
+  <!-- OVERLAY (mobile only, closes drawer) -->
+  <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-40 lg:hidden"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="flex flex-col w-64 bg-white border-r border-[#EFEBE2] shrink-0 h-screen lg:h-auto">
+    <div class="h-16 lg:h-20 flex items-center justify-between px-5 lg:px-7 border-b border-[#EFEBE2]">
+      <a href="./dashboard.html" class="flex items-center">
+        <img src="./assets/img/icons/logo.png" alt="Enlace" class="h-10 lg:h-12 w-auto">
+      </a>
+      <button id="sidebar-close-btn" class="lg:hidden rounded-xl p-2 -mr-2 text-[#888]" aria-label="Fechar menu">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <nav class="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
+      <button class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="visao-geral">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Visão geral
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="convidados">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Convidados
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="orcamento">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Orçamento
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="fornecedores">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Fornecedores
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="tarefas">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Tarefas &amp; Checklist
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="calendario">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Calendário
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="mesas">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Mapa de Mesas
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="documentos">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Documentos
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="notas">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Notas &amp; Ideias
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="progresso">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Progresso
+      </button>
+      <button class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-left" data-tab="convite">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-transparent"></span> Convite
+      </button>
+    </nav>
+    <div class="p-5 border-t border-[#EFEBE2]">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center font-display text-sm text-white shrink-0" style="background:var(--preto-grafite)">--</div>
+        <div class="text-xs min-w-0 flex-1">
+          <p class="font-semibold truncate">Nome dos noivos</p>
+          <p class="text-[#888] truncate">Data do casamento</p>
+        </div>
+        <button onclick="enlaceLogout()" type="button" title="Sair" aria-label="Sair"
+          class="p-2 rounded-xl text-[#888] hover:text-[#C0524A] hover:bg-[#F8FAFB] shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 min-w-0">
+
+    <!-- TOPBAR -->
+    <header class="h-16 lg:h-20 bg-white border-b border-[#EFEBE2] flex items-center justify-between px-4 sm:px-6 lg:px-10 gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <button id="sidebar-open-btn" class="lg:hidden rounded-xl p-2 -ml-2 text-[#1F1F1F] shrink-0" aria-label="Abrir menu">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <a href="./index.html" aria-label="Voltar ao início" title="Voltar"
+           class="p-2 -ml-1 rounded-xl shrink-0 hover:opacity-75 transition-opacity flex items-center gap-1" style="color:var(--azul-claro)">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          <span class="text-sm font-medium">Voltar</span>
+        </a>
+        <p id="page-title" class="font-display text-lg sm:text-2xl truncate">Visão geral</p>
+      </div>
+      <button type="button" class="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold btn-gold shrink-0 whitespace-nowrap">+ Nova tarefa</button>
+    </header>
+
+    <main class="p-4 sm:p-6 lg:p-10 max-w-6xl mx-auto">
+
+      <!-- VISÃO GERAL -->
+      <section class="tab-panel active" id="visao-geral">
+        <div class="grid sm:grid-cols-3 gap-5 mb-8">
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Faltam</p>
+            <p class="font-display text-3xl">—</p>
+          </div>
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Orçamento usado</p>
+            <p class="font-display text-3xl">0%</p>
+          </div>
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Convidados confirmados</p>
+            <p class="font-display text-3xl">0 / 0</p>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-xl p-5 sm:p-8 border border-transparent mb-8">
+          <div class="flex justify-between text-xs font-medium mb-2">
+            <span>Progresso do planeamento</span>
+            <span style="color:var(--azul-claro)">0%</span>
+          </div>
+          <div class="h-2.5 rounded-full w-full" style="background:#E7E2D6">
+            <div class="progress-fill h-2.5 rounded-full" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-xl p-5 sm:p-8 border border-transparent">
+          <p class="font-display text-lg mb-5">próximas tarefas</p>
+          <div class="space-y-3">
+            <p class="text-sm text-[#888]">Ainda sem tarefas adicionadas.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONVIDADOS -->
+      <section class="tab-panel" id="convidados">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div class="flex flex-wrap gap-2">
+            <span class="status-pill" style="background:rgba(163,177,138,.18); color:#5c6b47">0 confirmados</span>
+            <span class="status-pill" style="background:#F0EEE9; color:#888">0 por confirmar</span>
+            <span class="status-pill" style="background:#F0EEE9; color:#888">0 recusados</span>
+          </div>
+          <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold btn-gold self-start sm:self-auto">+ Adicionar convidado</button>
+        </div>
+        <div class="card bg-white rounded-xl border border-transparent overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[560px]">
+              <thead>
+                <tr class="text-left text-[#888] text-xs uppercase tracking-wide border-b border-[#EFEBE2]">
+                  <th class="px-6 py-4 font-medium">Nome</th>
+                  <th class="px-6 py-4 font-medium">Mesa</th>
+                  <th class="px-6 py-4 font-medium">Restrições</th>
+                  <th class="px-6 py-4 font-medium">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#F0EEE9]">
+                <tr>
+                  <td class="px-6 py-4 text-[#888]" colspan="4">Ainda sem convidados adicionados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ORÇAMENTO -->
+      <section class="tab-panel" id="orcamento">
+        <div class="grid sm:grid-cols-3 gap-5 mb-8">
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Orçamento total</p>
+            <p class="font-display text-2xl">Mz 0</p>
+          </div>
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Gasto até agora</p>
+            <p class="font-display text-2xl" style="color:var(--azul-claro)">Mz 0</p>
+          </div>
+          <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Restante</p>
+            <p class="font-display text-2xl">Mz 0</p>
+          </div>
+        </div>
+
+        <div class="card bg-white rounded-xl p-5 sm:p-8 border border-transparent">
+          <p class="text-sm text-[#888]">Ainda sem categorias de orçamento adicionadas.</p>
+        </div>
+      </section>
+
+      <!-- FORNECEDORES -->
+      <section class="tab-panel" id="fornecedores">
+        <div class="card bg-white rounded-xl p-4 sm:p-6 border border-transparent">
+          <p class="text-sm text-[#888]">Ainda sem fornecedores adicionados.</p>
+        </div>
+      </section>
+
+      <!-- TAREFAS & CHECKLIST -->
+      <section class="tab-panel" id="tarefas">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <p class="font-display text-2xl">Tarefas &amp; Checklist</p>
+            <p class="text-sm text-[#888] mt-1">Organizem cada etapa do casamento sem esquecer nenhum detalhe.</p>
+          </div>
+          <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold btn-gold" onclick="adicionarTarefa()">+ Adicionar tarefa</button>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-5 mb-6">
+          <div class="card bg-white rounded-xl p-5 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Total</p><p id="tarefas-total" class="font-display text-2xl">0</p>
+          </div>
+          <div class="card bg-white rounded-xl p-5 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Concluídas</p><p id="tarefas-concluidas" class="font-display text-2xl">0</p>
+          </div>
+          <div class="card bg-white rounded-xl p-5 border border-transparent">
+            <p class="text-xs text-[#888] mb-1">Pendentes</p><p id="tarefas-pendentes" class="font-display text-2xl">0</p>
+          </div>
+        </div>
+        <div class="card bg-white rounded-xl p-5 sm:p-7 border border-transparent">
+          <div id="tarefas-lista" class="space-y-3">
+            <p id="tarefas-vazio" class="text-sm text-[#888]">Ainda sem tarefas. Clique em “Adicionar tarefa” para começar.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDÁRIO -->
+      <section class="tab-panel" id="calendario">
+        <div class="mb-6">
+          <p class="font-display text-2xl">Calendário</p>
+          <p class="text-sm text-[#888] mt-1">Planeiem compromissos, pagamentos, reuniões e tarefas importantes.</p>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="card bg-white rounded-xl p-5 sm:p-7 border border-transparent">
+            <p class="font-display text-lg mb-5">Novo compromisso</p>
+            <div class="space-y-4">
+              <input id="cal-titulo" type="text" placeholder="Ex: Reunião com o fotógrafo" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+              <div class="grid sm:grid-cols-2 gap-4">
+                <input id="cal-data" type="date" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                <input id="cal-hora" type="time" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+              </div>
+              <button type="button" onclick="adicionarEvento()" class="px-5 py-2.5 rounded-xl text-sm font-semibold btn-gold">Adicionar ao calendário</button>
+            </div>
+          </div>
+          <div class="card bg-white rounded-xl p-5 sm:p-7 border border-transparent">
+            <p class="font-display text-lg mb-5">Próximos compromissos</p>
+            <div id="cal-lista" class="space-y-3"><p class="text-sm text-[#888]">Nenhum compromisso adicionado.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAPA DE MESAS -->
+      <section class="tab-panel" id="mesas">
+        <div class="mb-6">
+          <p class="font-display text-2xl">Mapa de Mesas</p>
+          <p class="text-sm text-[#888] mt-1">Organizem os convidados por mesa e preparem a disposição do espaço.</p>
+        </div>
+        <div class="card bg-white rounded-xl p-5 sm:p-7 border border-transparent">
+          <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <input id="mesa-nome" type="text" placeholder="Nome da mesa (ex: Mesa 1)" class="flex-1 px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+            <input id="mesa-capacidade" type="number" min="1" placeholder="Lugares" class="sm:w-32 px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+            <button type="button" onclick="adicionarMesa()" class="px-5 py-2.5 rounded-xl text-sm font-semibold btn-gold">+ Adicionar mesa</button>
+          </div>
+          <div id="mesas-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <p class="text-sm text-[#888]">Ainda sem mesas criadas.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOCUMENTOS -->
+      <section class="tab-panel" id="documentos">
+        <div class="mb-6">
+          <p class="font-display text-2xl">Documentos</p>
+          <p class="text-sm text-[#888] mt-1">Centralizem contratos, comprovativos e outros ficheiros do casamento.</p>
+        </div>
+        <div class="card bg-white rounded-xl p-5 sm:p-7 border border-transparent">
+          <label for="documentos-input" class="flex flex-col items-center justify-center min-h-40 border-2 border-dashed border-[#DCE3E9] rounded-xl cursor-pointer hover:bg-[#F8FAFB]">
+            <svg class="w-8 h-8 mb-3" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M5 13v5a2 2 0 002 2h10a2 2 0 002-2v-5"/></svg>
+            <span class="text-sm font-semibold">Carregar documentos</span>
+            <span class="text-xs text-[#888] mt-1">PDF, imagens e outros ficheiros</span>
+          </label>
+          <input id="documentos-input" type="file" multiple class="hidden">
+          <div id="documentos-lista" class="mt-5 space-y-2"><p class="text-sm text-[#888]">Nenhum documento carregado.</p></div>
+        </div>
+      </section>
+
+      <!-- NOTAS & IDEIAS -->
+      <section class="tab-panel" id="notas">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <p class="font-display text-2xl">Notas &amp; Ideias</p>
+            <p class="text-sm text-[#888] mt-1">Guardem inspirações, decisões e ideias para o grande dia.</p>
+          </div>
+          <button type="button" onclick="adicionarNota()" class="px-4 py-2 rounded-xl text-xs font-semibold btn-gold">+ Nova nota</button>
+        </div>
+        <div id="notas-lista" class="grid md:grid-cols-2 gap-5">
+          <p id="notas-vazio" class="text-sm text-[#888]">Ainda sem notas. Criem a primeira ideia.</p>
+        </div>
+      </section>
+
+      <!-- PROGRESSO -->
+      <section class="tab-panel" id="progresso">
+        <div class="mb-6">
+          <p class="font-display text-2xl">Progresso</p>
+          <p class="text-sm text-[#888] mt-1">Acompanhem visualmente o avanço do planeamento do casamento.</p>
+        </div>
+        <div class="card bg-white rounded-xl p-5 sm:p-8 border border-transparent">
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-semibold text-sm">Planeamento geral</span>
+            <span id="progresso-percentual" class="font-display text-2xl" style="color:var(--azul-claro)">0%</span>
+          </div>
+          <div class="h-3 rounded-full w-full" style="background:#E7E2D6">
+            <div id="progresso-barra" class="progress-fill h-3 rounded-full" style="width:0%"></div>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-5 mt-7">
+            <div class="bg-[#F8FAFB] rounded-xl p-4"><p class="text-xs text-[#888]">Tarefas concluídas</p><p id="prog-tarefas" class="font-display text-2xl mt-1">0</p></div>
+            <div class="bg-[#F8FAFB] rounded-xl p-4"><p class="text-xs text-[#888]">Tarefas pendentes</p><p id="prog-pendentes" class="font-display text-2xl mt-1">0</p></div>
+            <div class="bg-[#F8FAFB] rounded-xl p-4"><p class="text-xs text-[#888]">Eventos no calendário</p><p id="prog-eventos" class="font-display text-2xl mt-1">0</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONVITE -->
+      <section class="tab-panel" id="convite">
+        <div class="grid lg:grid-cols-2 gap-6 items-start">
+
+          <!-- FORM -->
+          <div class="card bg-white rounded-xl p-5 sm:p-8 border border-transparent">
+            <p class="font-display text-lg mb-1">Editar convite</p>
+            <p class="text-xs text-[#888] mb-6">As alterações aparecem na pré-visualização ao lado.</p>
+
+            <div class="space-y-5">
+              <div>
+                <label class="text-xs font-medium text-[#666] block mb-2">Foto do convite</label>
+                <div class="flex items-center gap-4">
+                  <div id="invite-photo-preview-wrap" class="w-20 h-20 rounded-xl overflow-hidden bg-[#F0EEE9] border border-[#EFEBE2] flex items-center justify-center shrink-0">
+                    <img id="invite-photo-preview" src="" alt="" class="w-full h-full object-cover hidden">
+                    <svg id="invite-photo-placeholder" class="w-7 h-7 text-[#C9C3B4]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5V6a1.5 1.5 0 011.5-1.5h15A1.5 1.5 0 0121 6v10.5M3 16.5A1.5 1.5 0 004.5 18h15a1.5 1.5 0 001.5-1.5M3 16.5l5.03-5.03a1.5 1.5 0 012.12 0L12 13.31m9 3.19l-4.66-4.66a1.5 1.5 0 00-2.12 0L12 13.31m0 0L14.5 15.8"/><circle cx="8" cy="9" r="1.5"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <label for="invite-photo-input" class="inline-block px-4 py-2 rounded-xl text-xs font-semibold btn-outline-gold cursor-pointer">Carregar foto</label>
+                    <input id="invite-photo-input" type="file" accept="image/*" class="hidden">
+                    <p id="invite-photo-filename" class="text-xs text-[#888] mt-2">Nenhuma foto escolhida</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs font-medium text-[#666] block mb-2">Nome do noivo</label>
+                  <input id="invite-nome1" type="text" value="" placeholder="Nome do noivo" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-[#666] block mb-2">Nome da noiva</label>
+                  <input id="invite-nome2" type="text" value="" placeholder="Nome da noiva" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs font-medium text-[#666] block mb-2">Data do casamento</label>
+                <input id="invite-data" type="text" value="" placeholder="ex: 15 de Maio, 2027" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+              </div>
+
+              <div class="space-y-4">
+                <div class="flex items-center gap-2 pt-1">
+                  <svg class="w-4 h-4 shrink-0" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v2H5V7l7-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 9v10a1 1 0 001 1h3v-5a2 2 0 114 0v5h3a1 1 0 001-1V9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.2v2"/></svg>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-[#666]">Igreja</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Local</label>
+                    <input id="invite-igreja-local" type="text" value="" placeholder="ex: Igreja de Nossa Senhora" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Horário</label>
+                    <input id="invite-igreja-horario" type="text" value="" placeholder="ex: 15:00" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                  <svg class="w-4 h-4 shrink-0" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 21V10a1 1 0 011-1h14a1 1 0 011 1v11"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 21h20"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 10l8-6 8 6"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21v-6h6v6"/></svg>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-[#666]">Salão</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Local</label>
+                    <input id="invite-salao-local" type="text" value="" placeholder="ex: Salão Jardim Real" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Horário</label>
+                    <input id="invite-salao-horario" type="text" value="" placeholder="ex: 18:00" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                  <svg class="w-4 h-4 shrink-0" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3h12l-1.2 13.2a4 4 0 01-4 3.8h-1.6a4 4 0 01-4-3.8L6 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.8 9h10.4"/></svg>
+                  <p class="text-xs font-semibold uppercase tracking-wide text-[#666]">Copo de água</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Local</label>
+                    <input id="invite-copo-local" type="text" value="" placeholder="ex: Terraço do Salão" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                  <div>
+                    <label class="text-xs font-medium text-[#666] block mb-2">Horário</label>
+                    <input id="invite-copo-horario" type="text" value="" placeholder="ex: 20:00" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-xs font-medium text-[#666] block mb-2">Mensagem</label>
+                <textarea id="invite-mensagem" rows="4" placeholder="Escreva a sua mensagem de convite" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)] resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="text-xs font-medium text-[#666] block mb-2">WhatsApp para receber as confirmações</label>
+                <input id="invite-rsvp-whatsapp" type="tel" placeholder="+351 912 345 678" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                <p class="text-xs text-[#888] mt-1.5">Quando um convidado confirmar presença, abre o WhatsApp com a resposta pronta a enviar para este número.</p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-3 pt-2">
+                <button id="invite-save-btn" class="px-5 py-2.5 rounded-xl text-sm font-semibold btn-gold">Guardar convite</button>
+                <button id="invite-share-btn" class="px-5 py-2.5 rounded-xl text-sm font-semibold btn-outline-gold flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342a3 3 0 100 2.316m0-2.316a3 3 0 100-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 10.632a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/></svg>
+                  Partilhar convite
+                </button>
+                <button id="invite-reset-btn" class="px-5 py-2.5 rounded-xl text-sm font-semibold" style="color:#888">Repor</button>
+              </div>
+              <p id="invite-status-msg" class="text-xs opacity-0 transition-opacity" style="color:var(--verde-salvia)">Guardado ✓</p>
+            </div>
+          </div>
+
+          <!-- LIVE PREVIEW -->
+          <div class="lg:sticky lg:top-6">
+            <p class="text-xs text-[#888] mb-3 uppercase tracking-wide font-medium">Pré-visualização</p>
+            <div class="rounded-xl overflow-hidden shadow-lg border border-[#EFEBE2]" style="background:var(--branco-gelo)">
+              <div id="invite-preview-photo-wrap" class="w-full h-64 bg-[#EFEBE2] flex items-center justify-center">
+                <img id="invite-preview-photo" src="" alt="" class="w-full h-full object-cover hidden">
+                <span id="invite-preview-photo-placeholder" class="text-xs text-[#888]">Sem foto carregada</span>
+              </div>
+              <div class="px-5 sm:px-8 py-8 sm:py-10 text-center">
+                <p class="text-xs tracking-[0.2em] uppercase text-[#888] mb-4">Convite de casamento</p>
+                <p id="invite-preview-nomes" class="font-display text-2xl sm:text-3xl mb-4">Nome &amp; Nome</p>
+                <div class="w-10 h-px mx-auto mb-4" style="background:var(--azul-claro)"></div>
+                <p id="invite-preview-mensagem" class="text-sm text-[#666] leading-relaxed mb-6"></p>
+                <p id="invite-preview-data" class="font-display text-lg mb-1"></p>
+
+                <div class="mt-6 space-y-4 text-left max-w-xs mx-auto">
+                  <div id="invite-preview-igreja-wrap" class="flex items-start gap-3 hidden">
+                    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v2H5V7l7-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 9v10a1 1 0 001 1h3v-5a2 2 0 114 0v5h3a1 1 0 001-1V9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.2v2"/></svg>
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wide text-[#888]">Igreja</p>
+                      <p id="invite-preview-igreja-local" class="text-sm"></p>
+                      <p id="invite-preview-igreja-horario" class="text-xs text-[#888]"></p>
+                    </div>
+                  </div>
+                  <div id="invite-preview-salao-wrap" class="flex items-start gap-3 hidden">
+                    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 21V10a1 1 0 011-1h14a1 1 0 011 1v11"/><path stroke-linecap="round" stroke-linejoin="round" d="M2 21h20"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 10l8-6 8 6"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 21v-6h6v6"/></svg>
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wide text-[#888]">Salão</p>
+                      <p id="invite-preview-salao-local" class="text-sm"></p>
+                      <p id="invite-preview-salao-horario" class="text-xs text-[#888]"></p>
+                    </div>
+                  </div>
+                  <div id="invite-preview-copo-wrap" class="flex items-start gap-3 hidden">
+                    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color:var(--azul-claro)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3h12l-1.2 13.2a4 4 0 01-4 3.8h-1.6a4 4 0 01-4-3.8L6 3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.8 9h10.4"/></svg>
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-wide text-[#888]">Copo de água</p>
+                      <p id="invite-preview-copo-local" class="text-sm"></p>
+                      <p id="invite-preview-copo-horario" class="text-xs text-[#888]"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RSVP -->
+              <div class="border-t border-[#EFEBE2] px-5 sm:px-8 py-8">
+                <div id="rsvp-form">
+                  <p class="font-display text-base text-center mb-5">Confirmar presença</p>
+
+                  <label class="text-xs font-medium text-[#666] block mb-2">O seu nome</label>
+                  <input id="rsvp-nome" type="text" placeholder="Escreva o seu nome" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm mb-4 focus:outline-none focus:border-[var(--azul-claro)]">
+
+                  <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button type="button" id="rsvp-yes-btn" data-attending="true" class="rsvp-choice-btn px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors" style="border-color:var(--verde-salvia)">Vou comparecer</button>
+                    <button type="button" id="rsvp-no-btn" data-attending="false" class="rsvp-choice-btn px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors" style="border-color:#DCD6C8">Não poderei ir</button>
+                  </div>
+
+                  <div id="rsvp-extra-fields" class="hidden space-y-4 mb-4">
+                    <div>
+                      <label class="text-xs font-medium text-[#666] block mb-2">Número de pessoas (incluindo você)</label>
+                      <select id="rsvp-guests" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-xs font-medium text-[#666] block mb-2">Restrições alimentares (opcional)</label>
+                      <input id="rsvp-restricoes" type="text" placeholder="ex: vegetariano, sem glúten" class="w-full px-4 py-2.5 rounded-xl border border-[#EFEBE2] text-sm focus:outline-none focus:border-[var(--azul-claro)]">
+                    </div>
+                  </div>
+
+                  <button id="rsvp-submit-btn" class="w-full px-4 py-2.5 rounded-xl text-sm font-semibold btn-gold" disabled>Enviar confirmação</button>
+                  <p id="rsvp-hint" class="text-xs text-[#888] text-center mt-2">Escolha uma opção acima.</p>
+                </div>
+
+                <div id="rsvp-thankyou" class="hidden text-center">
+                  <svg class="w-9 h-9 mx-auto mb-3" style="color:var(--verde-salvia)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                  <p class="font-display text-base mb-1">Obrigado pela confirmação!</p>
+                  <p id="rsvp-thankyou-msg" class="text-xs text-[#888]"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ---- Guarda de autenticação (protege esta página com o backend) ----
+  (function () {
+    const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
+    const token = localStorage.getItem('enlace_token');
+    const tipo = localStorage.getItem('enlace_tipo');
+
+    if (!token || tipo !== 'casal') {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    fetch(`${API_BASE}/casal/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error('sessão inválida');
+        const data = await resp.json();
+        return data.casal;
+      })
+      .then((casal) => {
+        const nomeEl = document.querySelector('.p-5.border-t .font-semibold');
+        const dataEl = document.querySelector('.p-5.border-t .text-\\[\\#888\\]');
+        const avatarEl = document.querySelector('.p-5.border-t .rounded-full');
+        if (nomeEl) nomeEl.textContent = `${casal.nome1} & ${casal.nome2}`;
+        if (dataEl) {
+          dataEl.textContent = casal.dataCasamento
+            ? new Date(casal.dataCasamento + 'T00:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' })
+            : 'Data por definir';
+        }
+        if (avatarEl) avatarEl.textContent = `${casal.nome1[0] || ''}${casal.nome2[0] || ''}`.toUpperCase();
+      })
+      .catch(() => {
+        localStorage.removeItem('enlace_token');
+        localStorage.removeItem('enlace_tipo');
+        localStorage.removeItem('enlace_usuario');
+        window.location.href = 'login.html';
+      });
+
+    window.enlaceLogout = function () {
+      localStorage.removeItem('enlace_token');
+      localStorage.removeItem('enlace_tipo');
+      localStorage.removeItem('enlace_usuario');
+      window.location.href = 'login.html';
+    };
+  })();
+
+  // ---- Menu móvel (drawer) ----
+  (function(){
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const openBtn = document.getElementById('sidebar-open-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
+
+    function openSidebar(){
+      sidebar.classList.add('open');
+      overlay.classList.remove('hidden');
+    }
+    function closeSidebar(){
+      sidebar.classList.remove('open');
+      overlay.classList.add('hidden');
+    }
+
+    openBtn.addEventListener('click', openSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    // Fecha o menu ao escolher uma secção (em ecrãs pequenos)
+    document.querySelectorAll('.nav-item').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(window.innerWidth < 1024) closeSidebar();
+      });
+    });
+  })();
+
+  const buttons = document.querySelectorAll('.nav-item');
+  const panels = document.querySelectorAll('.tab-panel');
+  const title = document.getElementById('page-title');
+  const titles = {
+    'visao-geral':'Visão geral',
+    'convidados':'Convidados',
+    'orcamento':'Orçamento',
+    'fornecedores':'Fornecedores',
+    'tarefas':'Tarefas & Checklist',
+    'calendario':'Calendário',
+    'mesas':'Mapa de Mesas',
+    'documentos':'Documentos',
+    'notas':'Notas & Ideias',
+    'progresso':'Progresso',
+    'convite':'Convite'
+  };
+  function goToTab(tab){
+    const btn = document.querySelector(`.nav-item[data-tab="${tab}"]`);
+    if(!btn) return;
+    buttons.forEach(b=>b.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tab).classList.add('active');
+    title.textContent = titles[tab];
+  }
+
+  buttons.forEach(btn=>{
+    btn.addEventListener('click', ()=> goToTab(btn.dataset.tab));
+  });
+
+  // Abre diretamente numa aba específica se vier ?tab=... na URL
+  // (ex: link "Orçamento" na página inicial -> dashboard.html?tab=orcamento)
+  (function(){
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if(tabParam && titles.hasOwnProperty(tabParam)){
+      goToTab(tabParam);
+    }
+  })();
+
+  // ---- FERRAMENTAS DO DASHBOARD ----
+  const ENLACE_TOOLS_KEY = 'enlace-dashboard-tools-v1';
+  let enlaceTools = JSON.parse(localStorage.getItem(ENLACE_TOOLS_KEY) || '{"tarefas":[],"eventos":[],"mesas":[],"notas":[]}');
+
+  function saveTools(){ localStorage.setItem(ENLACE_TOOLS_KEY, JSON.stringify(enlaceTools)); }
+
+  function adicionarTarefa(){
+    const nome = window.prompt('Nome da tarefa:');
+    if(!nome || !nome.trim()) return;
+    enlaceTools.tarefas.push({id:Date.now(), nome:nome.trim(), concluida:false});
+    saveTools(); renderFerramentas();
+  }
+  function toggleTarefa(id){
+    const t = enlaceTools.tarefas.find(x=>x.id===id);
+    if(t) t.concluida = !t.concluida;
+    saveTools(); renderFerramentas();
+  }
+  function removerTarefa(id){
+    enlaceTools.tarefas = enlaceTools.tarefas.filter(x=>x.id!==id);
+    saveTools(); renderFerramentas();
+  }
+
+  function adicionarEvento(){
+    const titulo = document.getElementById('cal-titulo').value.trim();
+    const data = document.getElementById('cal-data').value;
+    const hora = document.getElementById('cal-hora').value;
+    if(!titulo || !data) return alert('Preencha o título e a data do compromisso.');
+    enlaceTools.eventos.push({id:Date.now(), titulo, data, hora});
+    enlaceTools.eventos.sort((a,b)=>`${a.data}T${a.hora||'00:00'}`.localeCompare(`${b.data}T${b.hora||'00:00'}`));
+    saveTools();
+    document.getElementById('cal-titulo').value=''; document.getElementById('cal-data').value=''; document.getElementById('cal-hora').value='';
+    renderFerramentas();
+  }
+
+  function removerEvento(id){
+    enlaceTools.eventos = enlaceTools.eventos.filter(x=>x.id!==id);
+    saveTools(); renderFerramentas();
+  }
+
+  function adicionarMesa(){
+    const nome = document.getElementById('mesa-nome').value.trim();
+    const capacidade = parseInt(document.getElementById('mesa-capacidade').value,10) || 0;
+    if(!nome) return alert('Indique o nome da mesa.');
+    enlaceTools.mesas.push({id:Date.now(), nome, capacidade});
+    saveTools();
+    document.getElementById('mesa-nome').value=''; document.getElementById('mesa-capacidade').value='';
+    renderFerramentas();
+  }
+
+  function removerMesa(id){
+    enlaceTools.mesas = enlaceTools.mesas.filter(x=>x.id!==id);
+    saveTools(); renderFerramentas();
+  }
+
+  function adicionarNota(){
+    const titulo = window.prompt('Título da nota:');
+    if(!titulo || !titulo.trim()) return;
+    const texto = window.prompt('Escreva a sua nota ou ideia:') || '';
+    enlaceTools.notas.push({id:Date.now(), titulo:titulo.trim(), texto});
+    saveTools(); renderFerramentas();
+  }
+
+  function removerNota(id){
+    enlaceTools.notas = enlaceTools.notas.filter(x=>x.id!==id);
+    saveTools(); renderFerramentas();
+  }
+
+  document.getElementById('documentos-input').addEventListener('change', function(){
+    const lista = document.getElementById('documentos-lista');
+    if(!this.files.length) return;
+    lista.innerHTML = '';
+    [...this.files].forEach(file=>{
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between gap-3 p-3 rounded-xl bg-[#F8FAFB]';
+      row.innerHTML = `<div class="min-w-0"><p class="text-sm font-medium truncate">${file.name}</p><p class="text-xs text-[#888]">${(file.size/1024/1024).toFixed(2)} MB</p></div><span class="text-xs" style="color:var(--azul-claro)">Selecionado</span>`;
+      lista.appendChild(row);
+    });
+  });
+
+  function renderFerramentas(){
+    const lista = document.getElementById('tarefas-lista');
+    const vazio = document.getElementById('tarefas-vazio');
+    if(lista){
+      lista.innerHTML = '';
+      if(!enlaceTools.tarefas.length){
+        lista.innerHTML = '<p class="text-sm text-[#888]">Ainda sem tarefas. Clique em “Adicionar tarefa” para começar.</p>';
+      } else {
+        enlaceTools.tarefas.forEach(t=>{
+          const row=document.createElement('div');
+          row.className='flex items-center gap-3 p-3 rounded-xl bg-[#F8FAFB]';
+          row.innerHTML=`<input type="checkbox" ${t.concluida?'checked':''} onchange="toggleTarefa(${t.id})" class="w-4 h-4 accent-[#0B4870]"><span class="flex-1 text-sm ${t.concluida?'line-through text-[#999]':''}">${t.nome}</span><button onclick="removerTarefa(${t.id})" class="text-xs text-[#888]">Remover</button>`;
+          lista.appendChild(row);
+        });
+      }
+    }
+
+    const total=enlaceTools.tarefas.length, concl=enlaceTools.tarefas.filter(t=>t.concluida).length;
+    const ids=[['tarefas-total',total],['tarefas-concluidas',concl],['tarefas-pendentes',total-concl],['prog-tarefas',concl],['prog-pendentes',total-concl],['prog-eventos',enlaceTools.eventos.length]];
+    ids.forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.textContent=val;});
+    const pct=total?Math.round(concl/total*100):0;
+    const pctEl=document.getElementById('progresso-percentual'), bar=document.getElementById('progresso-barra');
+    if(pctEl) pctEl.textContent=pct+'%'; if(bar) bar.style.width=pct+'%';
+
+    const cal=document.getElementById('cal-lista');
+    if(cal){
+      cal.innerHTML=enlaceTools.eventos.length?'':'<p class="text-sm text-[#888]">Nenhum compromisso adicionado.</p>';
+      enlaceTools.eventos.forEach(e=>{
+        const row=document.createElement('div'); row.className='flex items-center gap-3 p-3 rounded-xl bg-[#F8FAFB]';
+        row.innerHTML=`<div class="flex-1"><p class="text-sm font-semibold">${e.titulo}</p><p class="text-xs text-[#888]">${e.data}${e.hora?' • '+e.hora:''}</p></div><button onclick="removerEvento(${e.id})" class="text-xs text-[#888]">Remover</button>`;
+        cal.appendChild(row);
+      });
+    }
+
+    const mg=document.getElementById('mesas-grid');
+    if(mg){
+      mg.innerHTML=enlaceTools.mesas.length?'':'<p class="text-sm text-[#888]">Ainda sem mesas criadas.</p>';
+      enlaceTools.mesas.forEach(m=>{
+        const card=document.createElement('div'); card.className='card rounded-xl p-5 bg-[#F8FAFB]';
+        card.innerHTML=`<p class="font-display text-lg">${m.nome}</p><p class="text-sm text-[#888] mt-1">${m.capacidade?m.capacidade+' lugares':'Capacidade não definida'}</p><button onclick="removerMesa(${m.id})" class="text-xs text-[#888] mt-4">Remover mesa</button>`;
+        mg.appendChild(card);
+      });
+    }
+
+    const nl=document.getElementById('notas-lista');
+    if(nl){
+      nl.innerHTML=enlaceTools.notas.length?'':'<p class="text-sm text-[#888]">Ainda sem notas. Criem a primeira ideia.</p>';
+      enlaceTools.notas.forEach(n=>{
+        const card=document.createElement('div'); card.className='card bg-white rounded-xl p-5 border border-transparent';
+        card.innerHTML=`<p class="font-display text-lg">${n.titulo}</p><p class="text-sm text-[#666] leading-relaxed mt-2 whitespace-pre-wrap">${n.texto}</p><button onclick="removerNota(${n.id})" class="text-xs text-[#888] mt-4">Remover</button>`;
+        nl.appendChild(card);
+      });
+    }
+  }
+
+  renderFerramentas();
+
+  // ---- CONVITE (invitation editor) ----
+  (function(){
+    const STORAGE_KEY = 'enlace-convite';
+
+    const fields = {
+      nome1: document.getElementById('invite-nome1'),
+      nome2: document.getElementById('invite-nome2'),
+      data: document.getElementById('invite-data'),
+      igrejaLocal: document.getElementById('invite-igreja-local'),
+      igrejaHorario: document.getElementById('invite-igreja-horario'),
+      salaoLocal: document.getElementById('invite-salao-local'),
+      salaoHorario: document.getElementById('invite-salao-horario'),
+      copoLocal: document.getElementById('invite-copo-local'),
+      copoHorario: document.getElementById('invite-copo-horario'),
+      mensagem: document.getElementById('invite-mensagem'),
+      rsvpWhatsapp: document.getElementById('invite-rsvp-whatsapp'),
+    };
+
+    const preview = {
+      nomes: document.getElementById('invite-preview-nomes'),
+      data: document.getElementById('invite-preview-data'),
+      mensagem: document.getElementById('invite-preview-mensagem'),
+      photo: document.getElementById('invite-preview-photo'),
+      photoPlaceholder: document.getElementById('invite-preview-photo-placeholder'),
+      igrejaWrap: document.getElementById('invite-preview-igreja-wrap'),
+      igrejaLocal: document.getElementById('invite-preview-igreja-local'),
+      igrejaHorario: document.getElementById('invite-preview-igreja-horario'),
+      salaoWrap: document.getElementById('invite-preview-salao-wrap'),
+      salaoLocal: document.getElementById('invite-preview-salao-local'),
+      salaoHorario: document.getElementById('invite-preview-salao-horario'),
+      copoWrap: document.getElementById('invite-preview-copo-wrap'),
+      copoLocal: document.getElementById('invite-preview-copo-local'),
+      copoHorario: document.getElementById('invite-preview-copo-horario'),
+    };
+
+    const photoInput = document.getElementById('invite-photo-input');
+    const photoFilename = document.getElementById('invite-photo-filename');
+    const photoPreview = document.getElementById('invite-photo-preview');
+    const photoPlaceholderIcon = document.getElementById('invite-photo-placeholder');
+    const saveBtn = document.getElementById('invite-save-btn');
+    const shareBtn = document.getElementById('invite-share-btn');
+    const resetBtn = document.getElementById('invite-reset-btn');
+    const statusMsg = document.getElementById('invite-status-msg');
+
+    let statusTimer = null;
+    function showStatus(text){
+      statusMsg.textContent = text;
+      statusMsg.classList.remove('opacity-0');
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => statusMsg.classList.add('opacity-0'), 2600);
+    }
+
+    let photoDataUrl = '';
+
+    const defaults = {
+      nome1: '',
+      nome2: '',
+      data: '',
+      igrejaLocal: '',
+      igrejaHorario: '',
+      salaoLocal: '',
+      salaoHorario: '',
+      copoLocal: '',
+      copoHorario: '',
+      mensagem: '',
+      photo: '',
+      rsvpWhatsapp: ''
+    };
+
+    function updatePreviewBlock(wrapEl, localEl, horarioEl, localVal, horarioVal){
+      localEl.textContent = localVal;
+      horarioEl.textContent = horarioVal;
+      const hasContent = !!(localVal || horarioVal);
+      wrapEl.classList.toggle('hidden', !hasContent);
+    }
+
+    function updatePreview(){
+      preview.nomes.textContent = `${fields.nome1.value || 'Nome'} & ${fields.nome2.value || 'Nome'}`;
+      preview.data.textContent = fields.data.value || defaults.data;
+      preview.mensagem.textContent = fields.mensagem.value || defaults.mensagem;
+
+      updatePreviewBlock(preview.igrejaWrap, preview.igrejaLocal, preview.igrejaHorario, fields.igrejaLocal.value, fields.igrejaHorario.value);
+      updatePreviewBlock(preview.salaoWrap, preview.salaoLocal, preview.salaoHorario, fields.salaoLocal.value, fields.salaoHorario.value);
+      updatePreviewBlock(preview.copoWrap, preview.copoLocal, preview.copoHorario, fields.copoLocal.value, fields.copoHorario.value);
+
+      if(photoDataUrl){
+        preview.photo.src = photoDataUrl;
+        preview.photo.classList.remove('hidden');
+        preview.photoPlaceholder.classList.add('hidden');
+        photoPreview.src = photoDataUrl;
+        photoPreview.classList.remove('hidden');
+        photoPlaceholderIcon.classList.add('hidden');
+      } else {
+        preview.photo.classList.add('hidden');
+        preview.photoPlaceholder.classList.remove('hidden');
+        photoPreview.classList.add('hidden');
+        photoPlaceholderIcon.classList.remove('hidden');
+      }
+    }
+
+    function applyData(data){
+      fields.nome1.value = data.nome1 ?? defaults.nome1;
+      fields.nome2.value = data.nome2 ?? defaults.nome2;
+      fields.data.value = data.data ?? defaults.data;
+      fields.igrejaLocal.value = data.igrejaLocal ?? defaults.igrejaLocal;
+      fields.igrejaHorario.value = data.igrejaHorario ?? defaults.igrejaHorario;
+      fields.salaoLocal.value = data.salaoLocal ?? defaults.salaoLocal;
+      fields.salaoHorario.value = data.salaoHorario ?? defaults.salaoHorario;
+      fields.copoLocal.value = data.copoLocal ?? defaults.copoLocal;
+      fields.copoHorario.value = data.copoHorario ?? defaults.copoHorario;
+      fields.mensagem.value = data.mensagem ?? defaults.mensagem;
+      fields.rsvpWhatsapp.value = data.rsvpWhatsapp ?? defaults.rsvpWhatsapp;
+      photoDataUrl = data.photo ?? '';
+      photoFilename.textContent = photoDataUrl ? 'Foto carregada' : 'Nenhuma foto escolhida';
+      updatePreview();
+    }
+
+    function loadSaved(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+          applyData(JSON.parse(raw));
+          return;
+        }
+      }catch(e){}
+      applyData(defaults);
+    }
+
+    Object.values(fields).forEach(el => el.addEventListener('input', updatePreview));
+
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        photoDataUrl = reader.result;
+        photoFilename.textContent = file.name;
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function currentData(){
+      return {
+        nome1: fields.nome1.value,
+        nome2: fields.nome2.value,
+        data: fields.data.value,
+        igrejaLocal: fields.igrejaLocal.value,
+        igrejaHorario: fields.igrejaHorario.value,
+        salaoLocal: fields.salaoLocal.value,
+        salaoHorario: fields.salaoHorario.value,
+        copoLocal: fields.copoLocal.value,
+        copoHorario: fields.copoHorario.value,
+        mensagem: fields.mensagem.value,
+        rsvpWhatsapp: fields.rsvpWhatsapp.value,
+        photo: photoDataUrl,
+      };
+    }
+
+    saveBtn.addEventListener('click', () => {
+      try{
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentData()));
+      }catch(e){}
+      showStatus('Guardado ✓');
+    });
+
+    resetBtn.addEventListener('click', () => {
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      photoInput.value = '';
+      applyData(defaults);
+    });
+
+    // ---- Partilhar convite ----
+    // Photos are included in the share link only while small enough to fit a URL;
+    // very large photos are left out so the link still works everywhere.
+    const MAX_PHOTO_URL_CHARS = 60000;
+
+    function buildShareUrl(){
+      const data = currentData();
+      if(data.photo && data.photo.length > MAX_PHOTO_URL_CHARS){
+        data.photo = ''; // too big to embed in a link
+      }
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      const base = location.origin + location.pathname;
+      return { url: `${base}?convite=${encoded}#convite`, photoOmitted: !!currentData().photo && !data.photo };
+    }
+
+    async function shareInvite(){
+      const { url, photoOmitted } = buildShareUrl();
+      const nome1 = fields.nome1.value || defaults.nome1;
+      const nome2 = fields.nome2.value || defaults.nome2;
+      const dataTxt = fields.data.value || defaults.data;
+      const localTxt = fields.igrejaLocal.value || fields.salaoLocal.value || '';
+      const shareText = localTxt
+        ? `${nome1} & ${nome2} convidam-te para o casamento • ${dataTxt} • ${localTxt}`
+        : `${nome1} & ${nome2} convidam-te para o casamento • ${dataTxt}`;
+
+      if(navigator.share){
+        try{
+          await navigator.share({ title: 'Convite de casamento', text: shareText, url });
+          return;
+        }catch(err){
+          if(err && err.name === 'AbortError') return; // user cancelled
+        }
+      }
+
+      try{
+        await navigator.clipboard.writeText(url);
+        showStatus(photoOmitted ? 'Link copiado ✓ (a foto ficou de fora por ser grande)' : 'Link copiado ✓');
+      }catch(e){
+        window.prompt('Copie o link do convite:', url);
+      }
+    }
+
+    shareBtn.addEventListener('click', shareInvite);
+
+    // ---- Confirmar presença (RSVP) ----
+    (function(){
+      const nomeInput = document.getElementById('rsvp-nome');
+      const yesBtn = document.getElementById('rsvp-yes-btn');
+      const noBtn = document.getElementById('rsvp-no-btn');
+      const extraFields = document.getElementById('rsvp-extra-fields');
+      const guestsSelect = document.getElementById('rsvp-guests');
+      const restricoesInput = document.getElementById('rsvp-restricoes');
+      const submitBtn = document.getElementById('rsvp-submit-btn');
+      const hint = document.getElementById('rsvp-hint');
+      const form = document.getElementById('rsvp-form');
+      const thankyou = document.getElementById('rsvp-thankyou');
+      const thankyouMsg = document.getElementById('rsvp-thankyou-msg');
+
+      let attending = null;
+
+      function refreshSubmitState(){
+        const ready = attending !== null && nomeInput.value.trim().length > 0;
+        submitBtn.disabled = !ready;
+        submitBtn.classList.toggle('opacity-50', !ready);
+        hint.textContent = ready
+          ? 'Tudo pronto para enviar.'
+          : (attending === null ? 'Escolha uma opção acima.' : 'Escreva o seu nome.');
+      }
+
+      yesBtn.addEventListener('click', () => {
+        attending = true;
+        yesBtn.classList.add('selected-yes');
+        noBtn.classList.remove('selected-no');
+        extraFields.classList.remove('hidden');
+        refreshSubmitState();
+      });
+
+      noBtn.addEventListener('click', () => {
+        attending = false;
+        noBtn.classList.add('selected-no');
+        yesBtn.classList.remove('selected-yes');
+        extraFields.classList.add('hidden');
+        refreshSubmitState();
+      });
+
+      nomeInput.addEventListener('input', refreshSubmitState);
+
+      submitBtn.addEventListener('click', () => {
+        if(submitBtn.disabled) return;
+        const guestName = nomeInput.value.trim();
+        const coupleNames = `${fields.nome1.value || defaults.nome1} & ${fields.nome2.value || defaults.nome2}`;
+        const guests = guestsSelect.value;
+        const restricoes = restricoesInput.value.trim();
+
+        let bodyLines = [`Confirmação de presença para o casamento de ${coupleNames}.`, '', `Nome: ${guestName}`];
+        if(attending){
+          bodyLines.push('Presença: Vou comparecer');
+          bodyLines.push(`Número de pessoas: ${guests}`);
+          if(restricoes) bodyLines.push(`Restrições alimentares: ${restricoes}`);
+        } else {
+          bodyLines.push('Presença: Não poderei ir');
+        }
+        const message = bodyLines.join('\n');
+
+        const rawNumber = fields.rsvpWhatsapp.value.trim();
+        const digitsOnly = rawNumber.replace(/\D/g, '');
+        if(digitsOnly){
+          const waUrl = `https://wa.me/${digitsOnly}?text=${encodeURIComponent(message)}`;
+          window.open(waUrl, '_blank');
+        }
+
+        // Keep a local copy of this guest's own response on their device
+        try{
+          localStorage.setItem('enlace-rsvp-resposta', JSON.stringify({
+            nome: guestName, attending, guests, restricoes, respondedAt: new Date().toISOString()
+          }));
+        }catch(e){}
+
+        form.classList.add('hidden');
+        thankyou.classList.remove('hidden');
+        thankyouMsg.textContent = attending
+          ? (digitsOnly ? 'O WhatsApp abriu com a sua resposta — só falta enviar.' : 'A sua presença foi registada.')
+          : 'Lamentamos que não possa vir. Obrigado por avisar!';
+      });
+
+      // Restore a previous response from this device, if any
+      try{
+        const prev = JSON.parse(localStorage.getItem('enlace-rsvp-resposta') || 'null');
+        if(prev){
+          form.classList.add('hidden');
+          thankyou.classList.remove('hidden');
+          thankyouMsg.textContent = prev.attending
+            ? 'Já confirmou a sua presença. Obrigado!'
+            : 'Já respondeu que não poderá vir. Obrigado por avisar!';
+        }
+      }catch(e){}
+
+      refreshSubmitState();
+    })();
+
+    // If this page was opened via a shared invite link, load that data instead
+    function loadFromUrlIfPresent(){
+      const params = new URLSearchParams(location.search);
+      const encoded = params.get('convite');
+      if(!encoded) return false;
+      try{
+        const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        applyData(data);
+        return true;
+      }catch(e){
+        return false;
+      }
+    }
+
+    if(loadFromUrlIfPresent()){
+      const conviteBtn = document.querySelector('.nav-item[data-tab="convite"]');
+      if(conviteBtn) conviteBtn.click();
+    } else {
+      loadSaved();
+    }
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Criar conta — Enlace casamentos</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="./assets/img/icons/icon.png">
+<style>
+  :root{
+    --branco-gelo:#FFFFFF;
+    --preto-grafite:#1F1F1F;
+    --azul-claro:#0B4870;
+    --verde-salvia:#A3B18A;
+    --cinza-claro:#F5F5F5;
+  }
+  html{
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+  }
+
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--preto-grafite);
+    background:var(--branco-gelo);
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+    touch-action:manipulation;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea{
+    touch-action:manipulation;
+  }
+
+  button,
+  a{
+    -webkit-tap-highlight-color:transparent;
+  }
+  .font-display{font-family:'Playfair Display',serif;}
+
+  .btn-gold{
+    background:var(--azul-claro);
+    color:#FFFFFF;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-gold:hover{transform:translateY(-1px); box-shadow:0 10px 24px -8px rgba(11,72,112,.55);}
+  .btn-gold:disabled{opacity:.6; transform:none; box-shadow:none; cursor:not-allowed;}
+
+  .input-field{
+    border:1.5px solid #E2E7EB;
+    background:#F8FAFB;
+    transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    font-size:16px; /* evita o zoom automático do iOS/Android ao focar o campo */
+  }
+  @media (min-width:640px){
+    .input-field{ font-size:0.875rem; } /* volta ao text-sm em ecrãs maiores, onde não há zoom automático */
+  }
+  .input-field:focus{
+    outline:none;
+    border-color:var(--azul-claro);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(11,72,112,.14);
+  }
+  .input-field.field-error{
+    border-color:#C0524A;
+    background:#FBF3F2;
+  }
+
+  select.input-field{
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    padding-right:2.25rem;
+  }
+
+
+
+  .fade-up{animation:fadeUp .7s ease both;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .fade-up{animation:none;}
+    .btn-gold:hover{transform:none;}
+  }
+
+  .quote-mark{
+    font-family:'Playfair Display',serif;
+    color:rgba(255,255,255,.35);
+    line-height:1;
+  }
+
+  .checkbox-gold{
+    accent-color:var(--azul-claro);
+  }
+
+  .social-icon{
+    border:1.5px solid rgba(11,72,112,.2);
+    color:var(--azul-claro);
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .social-icon:hover{background:var(--azul-claro); color:#fff; border-color:var(--azul-claro);}
+
+  /* ALTERNADOR TIPO DE CONTA */
+  .account-toggle-btn{
+    transition:background .2s ease, color .2s ease, box-shadow .2s ease;
+    color:#6B6B6B;
+  }
+  .account-toggle-btn.active{
+    background:#FFFFFF;
+    color:var(--azul-claro);
+    box-shadow:0 6px 16px -8px rgba(11,72,112,.35);
+  }
+
+  .account-panel{ display:none; }
+  .account-panel.active{ display:block; }
+
+  /* CHIPS DE CATEGORIA E FAIXA DE PREÇO (formulário de fornecedor) */
+  .cat-chip{
+    border:1.5px solid #E2E7EB;
+    color:var(--preto-grafite);
+    transition:background .2s ease, border-color .2s ease, color .2s ease;
+    cursor:pointer;
+  }
+  .cat-chip:hover{ border-color:var(--azul-claro); }
+  .cat-chip.selected{
+    background:var(--azul-claro);
+    border-color:var(--azul-claro);
+    color:#fff;
+  }
+
+  .cost-chip{
+    border:1.5px solid #E2E7EB;
+    color:var(--preto-grafite);
+    transition:background .2s ease, border-color .2s ease, color .2s ease;
+    cursor:pointer;
+  }
+  .cost-chip:hover{ border-color:var(--azul-claro); }
+  .cost-chip.selected{
+    background:rgba(11,72,112,.1);
+    border-color:var(--azul-claro);
+    color:var(--azul-claro);
+  }
+
+  /* Toast de sucesso */
+  #toastSucesso{
+    position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-20px);
+    z-index:100; display:flex; align-items:center; gap:10px;
+    background:var(--azul-claro); color:#fff; font-weight:600; font-size:.9rem;
+    padding:14px 22px; border-radius:12px; box-shadow:0 14px 32px -10px rgba(11,72,112,.55);
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;
+  }
+  #toastSucesso.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body class="antialiased">
+
+  <!-- TOAST DE SUCESSO -->
+  <div id="toastSucesso" role="status" aria-live="polite">
+    <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+    <span id="toastSucessoTexto">Conta criada com sucesso</span>
+  </div>
+
+  <!-- CABEÇALHO -->
+  <header class="relative bg-white sticky top-0 z-40">
+    <!-- IMAGEM DE FUNDO NO LADO ESQUERDO DO HEADER -->
+    <div class="pointer-events-none absolute left-0 top-0 h-full w-24 sm:w-60 lg:w-72 -z-10 overflow-hidden">
+      <img src="./assets/img/icons/banner.png" alt=""
+        class="h-full w-full object-cover object-[center_25%] sm:object-center" aria-hidden="true">
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-[76px] sm:h-20 flex items-center justify-between">
+
+      <!-- Botão menu hambúrguer -->
+      <button id="mobileMenuBtn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu"
+              class="w-9 h-9 flex items-center justify-center rounded-xl shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Logotipo -->
+      <a href="./index.html" class="flex items-center">
+        <img src="./assets/img/icons/logo.png" alt="Enlace casamentos" class="h-12 sm:h-14 w-auto object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+        <span class="font-display text-xl hidden" style="color:var(--azul-claro)">Enlace casamentos</span>
+      </a>
+
+      <!-- Seta para voltar ao index -->
+      <a href="./index.html" aria-label="Voltar ao início" title="Voltar"
+         class="h-9 px-2 flex items-center gap-1 rounded-xl shrink-0 hover:opacity-75 transition-opacity" style="color:var(--azul-claro)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="text-sm font-medium">Voltar</span>
+      </a>
+    </div>
+
+    <!-- Menu mobile -->
+    <nav id="mobileMenu" class="hidden absolute left-0 right-0 top-full px-4 sm:px-6 pb-4 pt-3 bg-white border-b border-[#E2E7EB] shadow-lg z-30">
+      <a href="./index.html" class="block px-2 py-2.5 rounded-xl text-[15px] font-medium hover:bg-[#F5F5F5] transition-colors">Início</a>
+      <a href="./login.html" class="block px-2 py-2.5 rounded-xl text-[15px] font-medium hover:bg-[#F5F5F5] transition-colors">Entrar</a>
+      <a href="./registo.html" class="block px-2 py-2.5 rounded-xl text-[15px] font-medium hover:bg-[#F5F5F5] transition-colors">Criar conta</a>
+    </nav>
+  </header>
+
+  <div class="grid">
+
+    <!-- COLUNA ESQUERDA — FORMULÁRIO -->
+    <div class="min-h-screen flex flex-col justify-center px-6 sm:px-10 lg:px-16 py-8 lg:py-10" style="background:var(--cinza-claro)">
+
+      <!-- Cartão -->
+      <div class="w-full max-w-md mx-auto fade-up bg-white rounded-xl border border-[#E2E7EB] shadow-sm px-6 py-8 sm:px-8 sm:py-9">
+
+        <!-- ALTERNADOR: CASAL / FORNECEDOR -->
+        <div id="accountTypeToggle" class="grid grid-cols-2 bg-[#F5F5F5] rounded-full p-1 mb-7">
+          <button type="button" data-tipo="casal" class="account-toggle-btn active px-3 py-2.5 rounded-full text-sm font-semibold">
+            Conta de casal
+          </button>
+          <button type="button" data-tipo="fornecedor" class="account-toggle-btn px-3 py-2.5 rounded-full text-sm font-semibold">
+            Conta de fornecedor
+          </button>
+        </div>
+
+        <!-- ================= PAINEL: CASAL ================= -->
+        <div id="painelCasal" class="account-panel active">
+
+          <p class="uppercase tracking-[0.3em] text-xs font-semibold mb-3" style="color:var(--azul-claro)">Comecem a planejar</p>
+          <h1 class="font-display text-3xl sm:text-4xl leading-tight">Criar a conta do casal</h1>
+          <p class="text-[#666] text-sm mt-3">
+            Uma única conta para os dois organizarem tudo juntos.
+          </p>
+
+          <form id="registoForm" class="mt-8 space-y-5" novalidate>
+
+            <!-- Nomes do casal -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="nome1" class="block text-sm font-semibold mb-2">O vosso nome</label>
+                <input type="text" id="nome1" name="nome1" autocomplete="given-name"
+                       class="input-field w-full px-4 py-3 text-sm"
+                       placeholder="Marta" required>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o vosso nome.</p>
+              </div>
+              <div>
+                <label for="nome2" class="block text-sm font-semibold mb-2">Nome do parceiro(a)</label>
+                <input type="text" id="nome2" name="nome2" autocomplete="off"
+                       class="input-field w-full px-4 py-3 text-sm"
+                       placeholder="Nuno" required>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o nome do parceiro(a).</p>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-semibold mb-2">Email</label>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="voces@exemplo.com" required>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Introduzam um email válido.</p>
+            </div>
+
+            <!-- Data do casamento -->
+            <div>
+              <label for="dataCasamento" class="block text-sm font-semibold mb-2">Data do casamento <span class="font-normal text-[#999]">(opcional)</span></label>
+              <input type="date" id="dataCasamento" name="dataCasamento"
+                     class="input-field w-full px-4 py-3 text-sm">
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label for="password" class="block text-sm font-semibold mb-2">Palavra-passe</label>
+              <div class="relative">
+                <input type="password" id="password" name="password" autocomplete="new-password"
+                       class="input-field w-full px-4 py-3 pr-11 text-sm"
+                       placeholder="Mínimo 8 caracteres" required minlength="8">
+                <button type="button" id="togglePassword" aria-label="Mostrar palavra-passe"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#1F1F1F] transition-colors">
+                  <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">A palavra-passe deve ter pelo menos 8 caracteres.</p>
+            </div>
+
+            <!-- Confirmar Password -->
+            <div>
+              <label for="confirmarPassword" class="block text-sm font-semibold mb-2">Confirmar palavra-passe</label>
+              <input type="password" id="confirmarPassword" name="confirmarPassword" autocomplete="new-password"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="••••••••" required minlength="8">
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">As palavras-passe não coincidem.</p>
+            </div>
+
+            <!-- Termos -->
+            <div class="flex items-start gap-2.5 pt-1">
+              <input type="checkbox" id="termos" name="termos" class="checkbox-gold mt-0.5" required>
+              <label for="termos" class="text-sm text-[#555]">
+                Aceito os <a href="#" class="font-medium hover:underline" style="color:var(--azul-claro)">Termos de Utilização</a>
+                e a <a href="#" class="font-medium hover:underline" style="color:var(--azul-claro)">Política de Privacidade</a>.
+              </label>
+            </div>
+            <p class="error-msg-termos text-xs -mt-3 hidden" style="color:#C0524A">É necessário aceitar os termos para continuar.</p>
+
+            <!-- Mensagem geral -->
+            <p id="formMsg" class="text-sm hidden" style="color:#C0524A"></p>
+
+            <!-- Botão submeter -->
+            <button type="submit" id="submitBtn"
+                    class="btn-gold w-full py-3.5 rounded-xl text-sm font-semibold mt-2">
+              Criar conta
+            </button>
+          </form>
+
+          <p class="text-center text-sm text-[#666] mt-9">
+            Já têm conta?
+            <a href="login.html" class="font-semibold hover:underline" style="color:var(--azul-claro)">Entrar</a>
+          </p>
+        </div>
+
+        <!-- ================= PAINEL: FORNECEDOR ================= -->
+        <div id="painelFornecedor" class="account-panel">
+
+          <p class="uppercase tracking-[0.3em] text-xs font-semibold mb-3" style="color:var(--azul-claro)">Para negócios</p>
+          <h1 class="font-display text-3xl sm:text-4xl leading-tight">Registar como fornecedor</h1>
+          <p class="text-[#666] text-sm mt-3">
+            Crie o perfil do vosso negócio e apareçam à frente de casais a planear o casamento.
+          </p>
+
+          <form id="registoFornecedorForm" class="mt-8 space-y-5" novalidate>
+
+            <!-- Nome do negócio -->
+            <div>
+              <label for="nomeNegocio" class="block text-sm font-semibold mb-2">Nome do negócio</label>
+              <input type="text" id="nomeNegocio" name="nomeNegocio" autocomplete="organization"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="Ex: Florarte Exclusive" required>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique o nome do negócio.</p>
+            </div>
+
+            <!-- Pessoa de contacto -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="responsavel" class="block text-sm font-semibold mb-2">Responsável</label>
+                <input type="text" id="responsavel" name="responsavel" autocomplete="name"
+                       class="input-field w-full px-4 py-3 text-sm"
+                       placeholder="O seu nome" required>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique o responsável.</p>
+              </div>
+              <div>
+                <label for="telefone" class="block text-sm font-semibold mb-2">Telefone</label>
+                <input type="tel" id="telefone" name="telefone" autocomplete="tel"
+                       class="input-field w-full px-4 py-3 text-sm"
+                       placeholder="+258 8xx xxx xxx" required>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique um contacto válido.</p>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="emailFornecedor" class="block text-sm font-semibold mb-2">Email</label>
+              <input type="email" id="emailFornecedor" name="emailFornecedor" autocomplete="email"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="@exemplo.com" required>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Introduza um email válido.</p>
+            </div>
+
+            <!-- Categoria -->
+            <div>
+              <label class="block text-sm font-semibold mb-2">Categoria do serviço</label>
+              <input type="hidden" id="categoria" name="categoria" required>
+              <div id="categoriaChips" class="flex flex-wrap gap-2"></div>
+              <p class="error-msg-categoria text-xs mt-1.5 hidden" style="color:#C0524A">Escolha uma categoria.</p>
+            </div>
+
+            <!-- Localização -->
+            <div>
+              <label for="localizacao" class="block text-sm font-semibold mb-2">Cidade / zona de atuação</label>
+              <input type="text" id="localizacao" name="localizacao" autocomplete="address-level2"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="Ex: Beira, Manga" required>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique a cidade ou zona.</p>
+            </div>
+
+            <!-- Faixa de preço -->
+            <div>
+              <label class="block text-sm font-semibold mb-2">Faixa de preço</label>
+              <input type="hidden" id="faixaPreco" name="faixaPreco" required>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" class="cost-chip py-3 rounded-xl text-sm font-medium" data-valor="baixo">Baixo custo</button>
+                <button type="button" class="cost-chip py-3 rounded-xl text-sm font-medium" data-valor="alto">Alto custo</button>
+              </div>
+              <p class="error-msg-faixa text-xs mt-1.5 hidden" style="color:#C0524A">Escolha uma faixa de preço.</p>
+            </div>
+
+            <!-- Preço aproximado -->
+            <div>
+              <label for="preco" class="block text-sm font-semibold mb-2">Preço aproximado</label>
+              <input type="text" id="preco" name="preco"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="Ex: 15.000 – 30.000 MT" required>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique um preço ou intervalo.</p>
+            </div>
+
+            <!-- Descrição -->
+            <div>
+              <label for="descricao" class="block text-sm font-semibold mb-2">Descrição do serviço</label>
+              <textarea id="descricao" name="descricao" rows="3"
+                        class="input-field w-full px-4 py-3 text-sm resize-none"
+                        placeholder="Descreva em poucas linhas o que oferecem." required></textarea>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Escreva uma breve descrição.</p>
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label for="passwordFornecedor" class="block text-sm font-semibold mb-2">Palavra-passe</label>
+              <div class="relative">
+                <input type="password" id="passwordFornecedor" name="passwordFornecedor" autocomplete="new-password"
+                       class="input-field w-full px-4 py-3 pr-11 text-sm"
+                       placeholder="Mínimo 8 caracteres" required minlength="8">
+                <button type="button" id="togglePasswordFornecedor" aria-label="Mostrar palavra-passe"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-[#999] hover:text-[#1F1F1F] transition-colors">
+                  <svg id="eyeIconFornecedor" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">A palavra-passe deve ter pelo menos 8 caracteres.</p>
+            </div>
+
+            <!-- Confirmar Password -->
+            <div>
+              <label for="confirmarPasswordFornecedor" class="block text-sm font-semibold mb-2">Confirmar palavra-passe</label>
+              <input type="password" id="confirmarPasswordFornecedor" name="confirmarPasswordFornecedor" autocomplete="new-password"
+                     class="input-field w-full px-4 py-3 text-sm"
+                     placeholder="••••••••" required minlength="8">
+              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">As palavras-passe não coincidem.</p>
+            </div>
+
+            <!-- Termos -->
+            <div class="flex items-start gap-2.5 pt-1">
+              <input type="checkbox" id="termosFornecedor" name="termosFornecedor" class="checkbox-gold mt-0.5" required>
+              <label for="termosFornecedor" class="text-sm text-[#555]">
+                Aceito os <a href="#" class="font-medium hover:underline" style="color:var(--azul-claro)">Termos de Utilização</a>
+                e a <a href="#" class="font-medium hover:underline" style="color:var(--azul-claro)">Política de Privacidade</a> para fornecedores.
+              </label>
+            </div>
+            <p class="error-msg-termos-fornecedor text-xs -mt-3 hidden" style="color:#C0524A">É necessário aceitar os termos para continuar.</p>
+
+            <!-- Mensagem geral -->
+            <p id="formMsgFornecedor" class="text-sm hidden" style="color:#C0524A"></p>
+
+            <!-- Botão submeter -->
+            <button type="submit" id="submitBtnFornecedor"
+                    class="btn-gold w-full py-3.5 rounded-xl text-sm font-semibold mt-2">
+              Registar negócio
+            </button>
+
+            <p class="text-xs text-center text-[#999] mt-1">
+              O perfil fica visível após revisão pela nossa equipa.
+            </p>
+          </form>
+
+          <p class="text-center text-sm text-[#666] mt-9">
+            Já têm conta de fornecedor?
+            <a href="login.html" class="font-semibold hover:underline" style="color:var(--azul-claro)">Entrar</a>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ALTERNAR ENTRE CONTA DE CASAL E CONTA DE FORNECEDOR
+    (function(){
+      const toggle = document.getElementById('accountTypeToggle');
+      const painelCasal = document.getElementById('painelCasal');
+      const painelFornecedor = document.getElementById('painelFornecedor');
+
+      function selecionarTipo(tipo){
+        toggle.querySelectorAll('.account-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.tipo === tipo));
+        painelCasal.classList.toggle('active', tipo === 'casal');
+        painelFornecedor.classList.toggle('active', tipo === 'fornecedor');
+        document.title = tipo === 'fornecedor'
+          ? 'Registar como fornecedor — Enlace casamentos'
+          : 'Criar conta — Enlace casamentos';
+      }
+
+      toggle.addEventListener('click', (e) => {
+        const btn = e.target.closest('.account-toggle-btn');
+        if(!btn) return;
+        selecionarTipo(btn.dataset.tipo);
+        history.replaceState(null, '', `?tipo=${btn.dataset.tipo}`);
+      });
+
+      // Pré-selecionar a partir do parâmetro ?tipo= na URL
+      const params = new URLSearchParams(window.location.search);
+      const tipo = params.get('tipo');
+      if(tipo === 'fornecedor') selecionarTipo('fornecedor');
+    })();
+
+    // Categorias de fornecedores (mesma lista usada em fornecedores.html)
+    const CATEGORIAS_FORNECEDOR = [
+      { slug: 'catering', nome: 'Catering' },
+      { slug: 'fotografia', nome: 'Fotografia' },
+      { slug: 'musica-dj', nome: 'Música/DJ' },
+      { slug: 'decoracao', nome: 'Decoração' },
+      { slug: 'vestidos-fatos', nome: 'Vestidos e fatos' },
+      { slug: 'viaturas', nome: 'Viaturas' },
+      { slug: 'flores', nome: 'Flores' },
+      { slug: 'espacos-eventos', nome: 'Espaços para eventos' },
+    ];
+
+    (function(){
+      const chipsWrap = document.getElementById('categoriaChips');
+      const categoriaInput = document.getElementById('categoria');
+      const categoriaErro = document.querySelector('.error-msg-categoria');
+
+      CATEGORIAS_FORNECEDOR.forEach(cat => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'cat-chip px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium';
+        chip.dataset.slug = cat.slug;
+        chip.textContent = cat.nome;
+        chipsWrap.appendChild(chip);
+      });
+
+      chipsWrap.addEventListener('click', (e) => {
+        const chip = e.target.closest('.cat-chip');
+        if(!chip) return;
+        chipsWrap.querySelectorAll('.cat-chip').forEach(c => c.classList.toggle('selected', c === chip));
+        categoriaInput.value = chip.dataset.slug;
+        categoriaErro.classList.add('hidden');
+      });
+
+      // Faixa de preço
+      const costChips = document.querySelectorAll('.cost-chip');
+      const faixaInput = document.getElementById('faixaPreco');
+      const faixaErro = document.querySelector('.error-msg-faixa');
+      costChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          costChips.forEach(c => c.classList.toggle('selected', c === chip));
+          faixaInput.value = chip.dataset.valor;
+          faixaErro.classList.add('hidden');
+        });
+      });
+    })();
+
+    // ===== FORMULÁRIO: CASAL =====
+    (function(){
+      const form = document.getElementById('registoForm');
+      const nome1 = document.getElementById('nome1');
+      const nome2 = document.getElementById('nome2');
+      const email = document.getElementById('email');
+      const password = document.getElementById('password');
+      const confirmarPassword = document.getElementById('confirmarPassword');
+      const termos = document.getElementById('termos');
+      const dataCasamento = document.getElementById('dataCasamento');
+      const submitBtn = document.getElementById('submitBtn');
+      const formMsg = document.getElementById('formMsg');
+      const toggleBtn = document.getElementById('togglePassword');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const termosErro = document.querySelector('.error-msg-termos');
+      const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
+
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = password.type === 'password';
+        password.type = isPassword ? 'text' : 'password';
+        eyeIcon.innerHTML = isPassword
+          ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.243L9.88 9.88"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>';
+        toggleBtn.setAttribute('aria-label', isPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe');
+      });
+
+      function setError(field, hasError){
+        const errorMsg = field.parentElement.querySelector('.error-msg') || field.closest('div').parentElement.querySelector('.error-msg');
+        field.classList.toggle('field-error', hasError);
+        if(errorMsg) errorMsg.classList.toggle('hidden', !hasError);
+      }
+
+      function validEmail(value){
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      [nome1, nome2, email, password].forEach(f => f.addEventListener('input', () => setError(f, false)));
+      confirmarPassword.addEventListener('input', () => {
+        confirmarPassword.classList.remove('field-error');
+        confirmarPassword.parentElement.querySelector('.error-msg').classList.add('hidden');
+      });
+      termos.addEventListener('change', () => termosErro.classList.add('hidden'));
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formMsg.classList.add('hidden');
+
+        let valid = true;
+
+        if(!nome1.value.trim()){ setError(nome1, true); valid = false; }
+        if(!nome2.value.trim()){ setError(nome2, true); valid = false; }
+        if(!validEmail(email.value.trim())){ setError(email, true); valid = false; }
+        if(password.value.length < 8){ setError(password, true); valid = false; }
+        if(confirmarPassword.value !== password.value || confirmarPassword.value.length < 8){
+          confirmarPassword.classList.add('field-error');
+          confirmarPassword.parentElement.querySelector('.error-msg').classList.remove('hidden');
+          valid = false;
+        }
+        if(!termos.checked){
+          termosErro.classList.remove('hidden');
+          valid = false;
+        }
+
+        if(!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'A criar conta…';
+
+        fetch(`${API_BASE}/auth/registo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome1: nome1.value.trim(),
+            nome2: nome2.value.trim(),
+            email: email.value.trim(),
+            dataCasamento: dataCasamento.value || null,
+            password: password.value,
+            confirmarPassword: confirmarPassword.value,
+          }),
+        })
+          .then(async (resp) => {
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok || !data.ok) {
+              throw new Error(
+                (data.erros && Object.values(data.erros)[0]) ||
+                data.erro ||
+                'Não foi possível criar a conta. Tenta novamente.'
+              );
+            }
+            localStorage.setItem('enlace_token', data.token);
+            localStorage.setItem('enlace_tipo', 'casal');
+            localStorage.setItem('enlace_usuario', JSON.stringify(data.casal));
+
+            const toast = document.getElementById('toastSucesso');
+            document.getElementById('toastSucessoTexto').textContent = 'Conta criada com sucesso';
+            toast.classList.add('show');
+            setTimeout(() => { window.location.href = '/'; }, 1400);
+          })
+          .catch((err) => {
+            formMsg.textContent = err.message;
+            formMsg.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Criar conta';
+          });
+      });
+    })();
+
+    // ===== FORMULÁRIO: FORNECEDOR =====
+    (function(){
+      const form = document.getElementById('registoFornecedorForm');
+      const nomeNegocio = document.getElementById('nomeNegocio');
+      const responsavel = document.getElementById('responsavel');
+      const telefone = document.getElementById('telefone');
+      const email = document.getElementById('emailFornecedor');
+      const localizacao = document.getElementById('localizacao');
+      const preco = document.getElementById('preco');
+      const descricao = document.getElementById('descricao');
+      const password = document.getElementById('passwordFornecedor');
+      const confirmarPassword = document.getElementById('confirmarPasswordFornecedor');
+      const termos = document.getElementById('termosFornecedor');
+      const categoriaInput = document.getElementById('categoria');
+      const faixaInput = document.getElementById('faixaPreco');
+      const submitBtn = document.getElementById('submitBtnFornecedor');
+      const formMsg = document.getElementById('formMsgFornecedor');
+      const toggleBtn = document.getElementById('togglePasswordFornecedor');
+      const eyeIcon = document.getElementById('eyeIconFornecedor');
+      const termosErro = document.querySelector('.error-msg-termos-fornecedor');
+      const categoriaErro = document.querySelector('.error-msg-categoria');
+      const faixaErro = document.querySelector('.error-msg-faixa');
+      const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
+
+      toggleBtn.addEventListener('click', () => {
+        const isPassword = password.type === 'password';
+        password.type = isPassword ? 'text' : 'password';
+        eyeIcon.innerHTML = isPassword
+          ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.243L9.88 9.88"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>';
+        toggleBtn.setAttribute('aria-label', isPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe');
+      });
+
+      function setError(field, hasError){
+        const errorMsg = field.parentElement.querySelector('.error-msg') || field.closest('div').parentElement.querySelector('.error-msg');
+        field.classList.toggle('field-error', hasError);
+        if(errorMsg) errorMsg.classList.toggle('hidden', !hasError);
+      }
+
+      function validEmail(value){
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      }
+
+      [nomeNegocio, responsavel, telefone, email, localizacao, preco, descricao, password].forEach(f =>
+        f.addEventListener('input', () => setError(f, false))
+      );
+      confirmarPassword.addEventListener('input', () => {
+        confirmarPassword.classList.remove('field-error');
+        confirmarPassword.parentElement.querySelector('.error-msg').classList.add('hidden');
+      });
+      termos.addEventListener('change', () => termosErro.classList.add('hidden'));
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formMsg.classList.add('hidden');
+
+        let valid = true;
+
+        if(!nomeNegocio.value.trim()){ setError(nomeNegocio, true); valid = false; }
+        if(!responsavel.value.trim()){ setError(responsavel, true); valid = false; }
+        if(!telefone.value.trim()){ setError(telefone, true); valid = false; }
+        if(!validEmail(email.value.trim())){ setError(email, true); valid = false; }
+        if(!localizacao.value.trim()){ setError(localizacao, true); valid = false; }
+        if(!preco.value.trim()){ setError(preco, true); valid = false; }
+        if(!descricao.value.trim()){ setError(descricao, true); valid = false; }
+        if(password.value.length < 8){ setError(password, true); valid = false; }
+        if(confirmarPassword.value !== password.value || confirmarPassword.value.length < 8){
+          confirmarPassword.classList.add('field-error');
+          confirmarPassword.parentElement.querySelector('.error-msg').classList.remove('hidden');
+          valid = false;
+        }
+        if(!categoriaInput.value){
+          categoriaErro.classList.remove('hidden');
+          valid = false;
+        }
+        if(!faixaInput.value){
+          faixaErro.classList.remove('hidden');
+          valid = false;
+        }
+        if(!termos.checked){
+          termosErro.classList.remove('hidden');
+          valid = false;
+        }
+
+        if(!valid) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'A registar…';
+
+        fetch(`${API_BASE}/auth/registo-fornecedor`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nomeNegocio: nomeNegocio.value.trim(),
+            responsavel: responsavel.value.trim(),
+            telefone: telefone.value.trim(),
+            emailFornecedor: email.value.trim(),
+            categoria: categoriaInput.value,
+            localizacao: localizacao.value.trim(),
+            faixaPreco: faixaInput.value,
+            preco: preco.value.trim(),
+            descricao: descricao.value.trim(),
+            passwordFornecedor: password.value,
+            confirmarPasswordFornecedor: confirmarPassword.value,
+          }),
+        })
+          .then(async (resp) => {
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok || !data.ok) {
+              throw new Error(
+                (data.erros && Object.values(data.erros)[0]) ||
+                data.erro ||
+                'Não foi possível registar o negócio. Tenta novamente.'
+              );
+            }
+            localStorage.setItem('enlace_token', data.token);
+            localStorage.setItem('enlace_tipo', 'fornecedor');
+            localStorage.setItem('enlace_usuario', JSON.stringify(data.fornecedor));
+
+            const toast = document.getElementById('toastSucesso');
+            document.getElementById('toastSucessoTexto').textContent = 'Conta criada com sucesso';
+            toast.classList.add('show');
+            setTimeout(() => { window.location.href = '/'; }, 1400);
+          })
+          .catch((err) => {
+            formMsg.textContent = err.message;
+            formMsg.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Registar negócio';
+          });
+      });
+    })();
+
+    // ALTERNAR MENU MOBILE (BOTÃO HAMBÚRGUER)
+    (function(){
+      const btn = document.getElementById('mobileMenuBtn');
+      const menu = document.getElementById('mobileMenu');
+      if(!btn || !menu) return;
+      btn.addEventListener('click', () => {
+        const isHidden = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden');
+        btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      });
+    })();
+  </script>
+
+</body>
+</html>
