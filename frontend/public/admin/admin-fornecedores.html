@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Painel de administração — Fornecedores | Enlace casamentos</title>
+  <title>Painel de administração — Fornecedores e Casais | Enlace casamentos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -53,6 +53,13 @@
     ::-webkit-scrollbar-thumb { background: #D8D3C8; border-radius: 8px; }
     .drag-handle { cursor: grab; }
     .tag-off { background:#F5F5F5; color:#9A9A9A; border:1px dashed #D8D3C8; }
+    .tag-estado { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+    .tag-ativo { background: rgba(163,177,138,.2); color: #5C7048; }
+    .tag-pendente { background: rgba(200,169,81,.2); color: #8A6D1A; }
+    .tag-inativo { background: #F5F5F5; color: #9A9A9A; border: 1px dashed #D8D3C8; }
+    .tab-btn { color: #8A8A8A; border-bottom: 2px solid transparent; }
+    .tab-btn:hover { color: #1F1F1F; }
+    .tab-btn.active { color: var(--azul-claro); border-bottom-color: var(--azul-claro); }
   </style>
 </head>
 
@@ -83,18 +90,23 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-16 sm:h-20 flex items-center justify-between gap-3">
         <div class="min-w-0">
           <p class="uppercase tracking-[0.15em] text-[10px] sm:text-[11px] font-semibold text-primary">Enlace casamentos</p>
-          <h1 class="font-display text-lg sm:text-2xl leading-tight truncate">Gestão de fornecedores</h1>
+          <h1 id="pageTitle" class="font-display text-lg sm:text-2xl leading-tight truncate">Gestão de fornecedores</h1>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <span id="saveStatus" class="hidden sm:inline text-xs text-[#8A8A8A] mr-1"></span>
           <button id="btnImport" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-ghost text-xs font-semibold">Importar JSON</button>
           <button id="btnExport" class="inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-outline text-xs sm:text-sm font-semibold">Descarregar dados</button>
-          <a href="./fornecedores.html" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-primary text-xs sm:text-sm font-semibold">Ver página pública</a>
+          <a href="../fornecedores.html" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 h-10 rounded-lg btn-primary text-xs sm:text-sm font-semibold">Ver página pública</a>
         </div>
       </div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-3 flex flex-wrap gap-2 sm:hidden">
         <button id="btnImportMobile" class="px-3 h-9 rounded-lg btn-ghost text-xs font-semibold">Importar JSON</button>
-        <a href="./fornecedores.html" target="_blank" class="px-3 h-9 rounded-lg btn-primary text-xs font-semibold inline-flex items-center">Ver página pública</a>
+        <a href="../fornecedores.html" target="_blank" class="px-3 h-9 rounded-lg btn-primary text-xs font-semibold inline-flex items-center">Ver página pública</a>
+      </div>
+      <!-- ABAS -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pb-0 flex gap-2 border-t border-line pt-2">
+        <button id="tabFornecedores" data-tab="fornecedores" class="tab-btn active px-4 h-10 rounded-t-lg text-sm font-semibold">Fornecedores</button>
+        <button id="tabCasais" data-tab="casais" class="tab-btn px-4 h-10 rounded-t-lg text-sm font-semibold">Casais</button>
       </div>
     </header>
 
@@ -104,7 +116,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mt-4">
       <div class="bg-white border border-line rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-[#555] leading-relaxed flex gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <div>
+        <div id="flowNote">
           <strong class="text-ink">Como publicar as alterações:</strong> as edições feitas aqui ficam guardadas neste
           navegador. Para que apareçam na página pública <code class="bg-mist px-1 rounded">fornecedores.html</code>,
           clique em <strong>"Descarregar dados"</strong> e carregue o ficheiro <code class="bg-mist px-1 rounded">fornecedores-data.json</code>
@@ -114,8 +126,8 @@
       </div>
     </div>
 
-    <!-- CONTEÚDO -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+    <!-- CONTEÚDO: FORNECEDORES -->
+    <main id="viewFornecedores" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
 
       <!-- LISTA DE CATEGORIAS -->
       <aside class="bg-white border border-line rounded-2xl p-3 h-fit lg:sticky lg:top-28">
@@ -128,6 +140,20 @@
 
       <!-- EDITOR DA CATEGORIA -->
       <section id="catEditor"></section>
+    </main>
+
+    <!-- CONTEÚDO: CASAIS -->
+    <main id="viewCasais" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6">
+      <div class="bg-white border border-line rounded-2xl p-4 sm:p-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="font-display text-xl">Casais registados</h2>
+            <p class="text-xs text-[#8A8A8A] mt-0.5">Contas de casais que usam a plataforma para organizar o casamento.</p>
+          </div>
+          <button id="btnAddCasal" class="px-4 h-10 rounded-lg btn-primary text-sm font-semibold shrink-0">+ Novo casal</button>
+        </div>
+        <div id="casaisList" class="flex flex-col gap-2"></div>
+      </div>
     </main>
   </div>
 
@@ -209,6 +235,71 @@
     </div>
   </div>
 
+  <!-- ===================== MODAL CASAL ===================== -->
+  <div id="casalModal" class="fixed inset-0 z-40 hidden items-center justify-center modal-backdrop px-4">
+    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="cmTitle" class="font-display text-xl">Casal</h3>
+        <button id="cmClose" class="w-8 h-8 rounded-full btn-ghost flex items-center justify-center">✕</button>
+      </div>
+      <form id="cmForm" class="space-y-3">
+        <div>
+          <label class="field-label">Nome do casal *</label>
+          <input id="cmNome" required placeholder="Ex: Ana &amp; Pedro" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label">Nome do(a) noivo(a) 1</label>
+            <input id="cmNoivo1" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+          <div>
+            <label class="field-label">Nome do(a) noivo(a) 2</label>
+            <input id="cmNoivo2" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label">Data do casamento</label>
+            <input id="cmData" type="date" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+          <div>
+            <label class="field-label">Nº de convidados</label>
+            <input id="cmConvidados" type="number" min="0" placeholder="Ex: 120" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label">E-mail *</label>
+            <input id="cmEmail" type="email" required placeholder="casal@email.com" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+          <div>
+            <label class="field-label">Telefone / WhatsApp</label>
+            <input id="cmTelefone" placeholder="258 84 000 0000" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Estado da conta</label>
+          <select id="cmEstado" class="w-full h-11 px-3 rounded-lg border border-line bg-mist">
+            <option value="ativo">Ativo</option>
+            <option value="pendente">Pendente de aprovação</option>
+            <option value="inativo">Inativo / suspenso</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Notas internas</label>
+          <textarea id="cmNotas" rows="2" class="w-full px-3 py-2 rounded-lg border border-line bg-mist resize-none"></textarea>
+        </div>
+        <div class="flex items-center justify-between gap-3 pt-2">
+          <button type="button" id="cmDelete" class="px-4 h-11 rounded-lg btn-danger text-sm font-semibold">Eliminar</button>
+          <div class="flex gap-2">
+            <button type="button" id="cmCancel" class="px-4 h-11 rounded-lg btn-ghost text-sm font-semibold">Cancelar</button>
+            <button type="submit" class="px-5 h-11 rounded-lg btn-primary text-sm font-semibold">Guardar casal</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- TOASTS -->
   <div id="toastHost" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 items-end"></div>
 
@@ -216,6 +307,7 @@
     /* ======================= CONFIGURAÇÃO ======================= */
     const ADMIN_PASSWORD = 'enlace2026'; // altere esta palavra-passe
     const STORAGE_KEY = 'fornecedores-data';
+    const CASAIS_STORAGE_KEY = 'casais-data';
 
     const ICON_PRESETS = {
       catering: '<path stroke-linecap="round" stroke-linejoin="round" d="M7 3v7a3 3 0 006 0V3M10 3v7M7 3h6M10 13v8M17 3v18M17 3c2 2 2 5 0 7"/>',
@@ -240,6 +332,10 @@
     let DATA = [];
     let selectedSlug = null;
     let vmContext = { mode: 'add', cost: 'baixo', catSlug: null, vendorId: null };
+
+    let CASAIS = [];
+    let casalContext = { mode: 'add', id: null };
+    let currentTab = 'fornecedores';
 
     /* ======================= ARMAZENAMENTO ======================= */
     async function storageGet(key) {
@@ -267,6 +363,14 @@
       return [];
     }
 
+    async function loadCasaisSeed() {
+      try {
+        const res = await fetch('./casais-data.json');
+        if (res.ok) return await res.json();
+      } catch (e) {}
+      return [];
+    }
+
     async function init() {
       const saved = await storageGet(STORAGE_KEY);
       DATA = saved && Array.isArray(saved) && saved.length ? saved : await loadSeed();
@@ -274,6 +378,10 @@
       selectedSlug = DATA[0].slug;
       renderCatList();
       renderEditor();
+
+      const savedCasais = await storageGet(CASAIS_STORAGE_KEY);
+      CASAIS = savedCasais && Array.isArray(savedCasais) ? savedCasais : await loadCasaisSeed();
+      renderCasaisList();
     }
 
     function emptyCategory() {
@@ -292,6 +400,17 @@
       clearTimeout(saveTimer);
       saveTimer = setTimeout(async () => {
         const ok = await storageSet(STORAGE_KEY, DATA);
+        status.textContent = ok ? 'Guardado às ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : 'Falha ao guardar neste navegador';
+      }, 400);
+    }
+
+    let saveTimerCasais = null;
+    function scheduleSaveCasais() {
+      const status = document.getElementById('saveStatus');
+      status.textContent = 'A guardar…';
+      clearTimeout(saveTimerCasais);
+      saveTimerCasais = setTimeout(async () => {
+        const ok = await storageSet(CASAIS_STORAGE_KEY, CASAIS);
         status.textContent = ok ? 'Guardado às ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : 'Falha ao guardar neste navegador';
       }, 400);
     }
@@ -514,12 +633,142 @@
       toast('Categoria criada');
     });
 
+    /* ======================= CASAIS ======================= */
+    function formatDate(iso) {
+      if (!iso) return '';
+      try { return new Date(iso + 'T00:00:00').toLocaleDateString('pt-PT'); } catch (e) { return iso; }
+    }
+
+    function renderCasaisList() {
+      const el = document.getElementById('casaisList');
+      if (!CASAIS.length) {
+        el.innerHTML = '<p class="text-sm text-[#9A9A9A] px-1 py-6">Ainda sem casais registados.</p>';
+        return;
+      }
+      el.innerHTML = CASAIS.map(casalRow).join('');
+      bindCasalButtons();
+    }
+
+    function casalRow(c) {
+      const estado = c.estado || 'ativo';
+      const estadoLabel = { ativo: 'Ativo', pendente: 'Pendente', inativo: 'Inativo' }[estado] || 'Ativo';
+      const sub = [c.email, c.dataCasamento ? formatDate(c.dataCasamento) : null].filter(Boolean).join(' · ');
+      return `
+        <div class="flex items-center gap-3 p-3 rounded-xl border border-line">
+          <div class="w-11 h-11 rounded-full bg-mist shrink-0 flex items-center justify-center font-display text-primary text-lg">
+            ${escapeHtml((c.nome || '?').slice(0, 1).toUpperCase())}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold truncate">${escapeHtml(c.nome)} <span class="tag-estado tag-${estado} align-middle">${estadoLabel}</span></p>
+            <p class="text-xs text-[#8A8A8A] truncate">${escapeHtml(sub)}</p>
+          </div>
+          <button data-edit-casal="${c.id}" class="edit-casal-btn px-2.5 h-8 rounded-lg btn-ghost text-xs font-semibold shrink-0">Editar</button>
+        </div>`;
+    }
+
+    function bindCasalButtons() {
+      document.querySelectorAll('.edit-casal-btn').forEach(btn => {
+        btn.addEventListener('click', () => openCasalModal({ mode: 'edit', id: btn.dataset.editCasal }));
+      });
+    }
+
+    document.getElementById('btnAddCasal').addEventListener('click', () => openCasalModal({ mode: 'add', id: null }));
+
+    const casalModal = document.getElementById('casalModal');
+    function openCasalModal(ctx) {
+      casalContext = ctx;
+      const c = ctx.mode === 'edit' ? CASAIS.find(x => x.id === ctx.id) : null;
+
+      document.getElementById('cmTitle').textContent = ctx.mode === 'edit' ? 'Editar casal' : 'Novo casal';
+      document.getElementById('cmNome').value = c?.nome || '';
+      document.getElementById('cmNoivo1').value = c?.noivo1 || '';
+      document.getElementById('cmNoivo2').value = c?.noivo2 || '';
+      document.getElementById('cmData').value = c?.dataCasamento || '';
+      document.getElementById('cmConvidados').value = c?.convidados ?? '';
+      document.getElementById('cmEmail').value = c?.email || '';
+      document.getElementById('cmTelefone').value = c?.telefone || '';
+      document.getElementById('cmEstado').value = c?.estado || 'ativo';
+      document.getElementById('cmNotas').value = c?.notas || '';
+      document.getElementById('cmDelete').classList.toggle('hidden', ctx.mode !== 'edit');
+
+      casalModal.classList.remove('hidden');
+      casalModal.classList.add('flex');
+    }
+    function closeCasalModal() {
+      casalModal.classList.add('hidden');
+      casalModal.classList.remove('flex');
+    }
+    document.getElementById('cmClose').addEventListener('click', closeCasalModal);
+    document.getElementById('cmCancel').addEventListener('click', closeCasalModal);
+    casalModal.addEventListener('click', e => { if (e.target === casalModal) closeCasalModal(); });
+
+    document.getElementById('cmForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const payload = {
+        nome: document.getElementById('cmNome').value.trim(),
+        noivo1: document.getElementById('cmNoivo1').value.trim(),
+        noivo2: document.getElementById('cmNoivo2').value.trim(),
+        dataCasamento: document.getElementById('cmData').value,
+        convidados: document.getElementById('cmConvidados').value ? Number(document.getElementById('cmConvidados').value) : null,
+        email: document.getElementById('cmEmail').value.trim(),
+        telefone: document.getElementById('cmTelefone').value.trim(),
+        estado: document.getElementById('cmEstado').value,
+        notas: document.getElementById('cmNotas').value.trim(),
+      };
+      if (!payload.nome || !payload.email) return;
+
+      if (casalContext.mode === 'add') {
+        payload.id = 'c' + Date.now() + Math.floor(Math.random() * 1000);
+        CASAIS.push(payload);
+      } else {
+        const idx = CASAIS.findIndex(c => c.id === casalContext.id);
+        CASAIS[idx] = { ...CASAIS[idx], ...payload, id: casalContext.id };
+      }
+      closeCasalModal();
+      renderCasaisList();
+      scheduleSaveCasais();
+      toast('Casal guardado');
+    });
+
+    document.getElementById('cmDelete').addEventListener('click', () => {
+      if (!confirm('Eliminar este casal? Esta ação não afeta a conta dele no site, apenas este registo administrativo.')) return;
+      CASAIS = CASAIS.filter(c => c.id !== casalContext.id);
+      closeCasalModal();
+      renderCasaisList();
+      scheduleSaveCasais();
+      toast('Casal eliminado');
+    });
+
+    /* ======================= TROCA DE ABAS ======================= */
+    const FLOW_NOTES = {
+      fornecedores: `<strong class="text-ink">Como publicar as alterações:</strong> as edições feitas aqui ficam guardadas neste
+          navegador. Para que apareçam na página pública <code class="bg-mist px-1 rounded">fornecedores.html</code>,
+          clique em <strong>"Descarregar dados"</strong> e carregue o ficheiro <code class="bg-mist px-1 rounded">fornecedores-data.json</code>
+          gerado para o servidor do site, na mesma pasta do ficheiro <code class="bg-mist px-1 rounded">fornecedores.html</code>
+          (substituindo o anterior).`,
+      casais: `<strong class="text-ink">Sobre esta lista:</strong> as edições feitas aqui ficam guardadas neste navegador.
+          Se o site já tiver um backend próprio para contas de casais (registo/login), use <strong>"Descarregar dados"</strong>
+          apenas como cópia de referência ou para importar um lote — as contas reais continuam geridas pelo backend.`,
+    };
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.getElementById('viewFornecedores').classList.toggle('hidden', tab !== 'fornecedores');
+      document.getElementById('viewCasais').classList.toggle('hidden', tab !== 'casais');
+      document.getElementById('pageTitle').textContent = tab === 'casais' ? 'Gestão de casais' : 'Gestão de fornecedores';
+      document.getElementById('flowNote').innerHTML = FLOW_NOTES[tab];
+    }
+    document.getElementById('tabFornecedores').addEventListener('click', () => switchTab('fornecedores'));
+    document.getElementById('tabCasais').addEventListener('click', () => switchTab('casais'));
+
     /* ======================= EXPORTAR / IMPORTAR ======================= */
     function exportData() {
-      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+      const isCasais = currentTab === 'casais';
+      const blob = new Blob([JSON.stringify(isCasais ? CASAIS : DATA, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'fornecedores-data.json';
+      a.href = url; a.download = isCasais ? 'casais-data.json' : 'fornecedores-data.json';
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       toast('Ficheiro descarregado');
@@ -536,9 +785,15 @@
         const text = await file.text();
         const parsed = JSON.parse(text);
         if (!Array.isArray(parsed)) throw new Error('formato inválido');
-        DATA = parsed;
-        selectedSlug = DATA[0]?.slug || null;
-        renderCatList(); renderEditor(); scheduleSave();
+        if (currentTab === 'casais') {
+          CASAIS = parsed;
+          renderCasaisList();
+          scheduleSaveCasais();
+        } else {
+          DATA = parsed;
+          selectedSlug = DATA[0]?.slug || null;
+          renderCatList(); renderEditor(); scheduleSave();
+        }
         toast('Dados importados com sucesso');
       } catch (err) {
         alert('Não foi possível importar este ficheiro. Verifique se é um JSON exportado deste painel.');
