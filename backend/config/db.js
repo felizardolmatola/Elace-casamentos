@@ -4,7 +4,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
   throw new Error(
-    'DATABASE_URL não está configurada. Adicione a connection string do Supabase nas variáveis de ambiente do Render.'
+    'DATABASE_URL não está configurada. Adicione a connection string do Supabase no .env local ou no Render.'
   );
 }
 

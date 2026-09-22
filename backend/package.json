@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Backend (API) do Enlace — Express + SQLite (node:sqlite), autenticação de casais e fornecedores.",
+  "description": "Backend da API do Enlace Casamentos — Express + Supabase PostgreSQL.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
