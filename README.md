@@ -1,4 +1,4 @@
-# Enlace — Gestão de Casamentos
+# Elace — Gestão de Casamentos
 
 Projeto dividido em duas pastas independentes, cada uma com o seu próprio `package.json` e `node_modules`:
 
