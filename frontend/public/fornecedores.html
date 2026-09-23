@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Fornecedores — Enlace casamentos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./api-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -484,7 +485,7 @@ textarea:focus-visible {
 
   <script>
     // BASE DA API — pode ser configurada globalmente via window.ENLACE_API_BASE
-    const API_BASE = window.ENLACE_API_BASE || 'https://elace-casamentos.onrender.com/api';
+    const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
 
     // METADADOS DAS CATEGORIAS (apenas layout/ícones — os fornecedores vêm da API)
     const CATEGORIAS = [
@@ -544,8 +545,8 @@ textarea:focus-visible {
     }
 
     function vendorCard(v) {
-      const foto = v.foto
-        ? `<img src="${v.foto}" alt="${v.nomeNegocio || 'Fornecedor'}" class="img-blur img-blur-loaded w-full h-full object-cover">`
+      const foto = v.fotoUrl
+        ? `<img src="${v.fotoUrl}" alt="${v.nomeNegocio || 'Fornecedor'}" class="img-blur img-blur-loaded w-full h-full object-cover">`
         : `<div class="w-full h-full flex items-center justify-center font-display text-3xl text-white" style="background:var(--azul-claro)">${iniciais(v.nomeNegocio)}</div>`;
 
       const faixaLabel = FAIXA_LABELS[v.faixaPreco] || '';
@@ -558,7 +559,7 @@ textarea:focus-visible {
             <p class="text-sm text-[#555] leading-relaxed mb-3">${v.descricao || 'Ainda sem descrição.'}</p>
             <div class="flex items-center gap-2 flex-wrap">
               ${faixaLabel ? `<span class="price-pill inline-block text-xs font-semibold px-3 py-1.5 rounded-full">${faixaLabel}</span>` : ''}
-              ${v.localizacao ? `<span class="text-xs text-[#888]">${v.localizacao}</span>` : ''}
+              ${(v.cidade || v.endereco) ? `<span class="text-xs text-[#888]">${v.cidade || v.endereco}</span>` : ''}
             </div>
           </div>
         </div>`;
@@ -646,10 +647,10 @@ textarea:focus-visible {
         const resp = await fetch(`${API_BASE}/fornecedor`);
         if (!resp.ok) throw new Error('Falha ao carregar fornecedores');
         const data = await resp.json();
-        const lista = (data.fornecedores || []).filter(f => f.ativo);
+        const lista = data.fornecedores || [];
 
         CATEGORIAS.forEach(cat => {
-          const doCategoria = lista.filter(f => f.categoria === cat.slug);
+          const doCategoria = lista.filter(f => (f.categoria || '').toLowerCase() === cat.slug || (f.categoriaNome || '').toLowerCase().replace(/\s+/g,'-') === cat.slug);
           ['baixo', 'medio', 'alto'].forEach(faixa => {
             const grupo = document.querySelector(`#panel-${cat.slug} .cost-group[data-cost="${faixa}"]`);
             if (!grupo) return;

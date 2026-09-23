@@ -3,9 +3,7 @@ import postgres from 'postgres';
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
-  throw new Error(
-    'DATABASE_URL não está configurada. Adicione a connection string do Supabase no .env local ou no Render.'
-  );
+  throw new Error('DATABASE_URL não está configurada.');
 }
 
 export const sql = postgres(DATABASE_URL, {

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel do Casal — Enlace</title>
+<script src="./api-config.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -678,7 +679,7 @@ textarea:focus-visible {
 <script>
   // ---- Guarda de autenticação (protege esta página com o backend) ----
   (function () {
-    const API_BASE = window.ENLACE_API_BASE || 'https://elace-casamentos.onrender.com/api';
+    const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
     const token = localStorage.getItem('enlace_token');
     const tipo = localStorage.getItem('enlace_tipo');
 

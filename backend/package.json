@@ -1,9 +1,9 @@
 {
   "name": "enlace-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Backend da API do Enlace Casamentos — Express + Supabase PostgreSQL.",
+  "description": "API do Enlace Casamentos - Express + PostgreSQL/Supabase",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

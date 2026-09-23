@@ -1,200 +1,44 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { sql } from '../config/db.js';
 import { exigirAutenticacao, exigirTipo } from '../middlewares/auth.js';
+import { mapCasal } from '../controllers/authController.js';
 
 const router = Router();
+const casalAuth = [exigirAutenticacao, exigirTipo('casal')];
+const adminAuth = [exigirAutenticacao, exigirTipo('admin')];
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-troca-isto-em-producao';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+router.get('/me', ...casalAuth, async (req, res) => {
+  try { const [c] = await sql`SELECT * FROM casais WHERE id = ${Number(req.usuario.id)} LIMIT 1`; return c ? res.json({ ok: true, casal: mapCasal(c) }) : res.status(404).json({ ok: false, erro: 'Casal não encontrado.' }); }
+  catch (e) { console.error(e); res.status(500).json({ ok: false, erro: 'Erro ao consultar o casal.' }); }
+});
 
-router.get('/me', exigirAutenticacao, exigirTipo('casal'), async (req, res) => {
+router.patch('/me', ...casalAuth, async (req, res) => {
+  const id = Number(req.usuario.id), b = req.body || {};
   try {
-    const [casal] = await sql`
-      SELECT * FROM casais
-      WHERE id = ${Number(req.usuario.id)}
-      LIMIT 1
-    `;
-
-    if (!casal) {
-      return res.status(404).json({ ok: false, erro: 'Casal não encontrado.' });
-    }
-
-    return res.json({
-      ok: true,
-      casal: {
-        id: casal.id,
-        nome1: casal.nome1,
-        nome2: casal.nome2,
-        email: casal.email,
-        dataCasamento: casal.data_casamento,
-        telefone: casal.telefone || null,
-        convidados: casal.convidados ?? null,
-        estado: casal.estado || 'ativo',
-        notas: casal.notas || ''
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, erro: 'Erro ao consultar o casal.' });
-  }
+    const [c] = await sql`SELECT * FROM casais WHERE id = ${id} LIMIT 1`;
+    if (!c) return res.status(404).json({ ok: false, erro: 'Casal não encontrado.' });
+    const nome1 = String(b.nome1 ?? c.nome1).trim(), nome2 = String(b.nome2 ?? c.nome2).trim();
+    const email = String(b.email ?? c.email).trim().toLowerCase();
+    if (!nome1 || !nome2 || !email) return res.status(400).json({ ok: false, erro: 'Nome e email são obrigatórios.' });
+    await sql`UPDATE casais SET nome1=${nome1}, nome2=${nome2}, email=${email}, telefone=${b.telefone ?? c.telefone}, data_casamento=${b.dataCasamento ?? c.data_casamento}, foto_url=${b.fotoUrl ?? c.foto_url}, cidade=${b.cidade ?? c.cidade} WHERE id=${id}`;
+    const [u] = await sql`SELECT * FROM casais WHERE id=${id} LIMIT 1`;
+    res.json({ ok: true, casal: mapCasal(u) });
+  } catch (e) { console.error(e); res.status(e?.code === '23505' ? 409 : 500).json({ ok: false, erro: e?.code === '23505' ? 'Este email já está em uso.' : 'Não foi possível atualizar o casal.' }); }
 });
 
-router.post('/admin/login', (req, res) => {
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-    return res.status(503).json({
-      ok: false,
-      erro: 'ADMIN_EMAIL e ADMIN_PASSWORD não estão configurados.'
-    });
-  }
-
-  const email = String(req.body?.email || '').trim().toLowerCase();
-  const password = String(req.body?.password || '');
-
-  if (email !== ADMIN_EMAIL.trim().toLowerCase() || password !== ADMIN_PASSWORD) {
-    return res.status(401).json({
-      ok: false,
-      erro: 'Credenciais de administrador inválidas.'
-    });
-  }
-
-  const token = jwt.sign(
-    { id: 'admin', tipo: 'admin', email: ADMIN_EMAIL },
-    JWT_SECRET,
-    { expiresIn: '8h' }
-  );
-
-  res.json({ ok: true, token });
+router.get('/admin/casais', ...adminAuth, async (req, res) => {
+  try { const rows = await sql`SELECT id,nome1,nome2,email,telefone,data_casamento,foto_url,cidade,estado_conta,criado_em,atualizado_em FROM casais ORDER BY id DESC`; res.json({ ok:true, casais: rows.map(mapCasal) }); }
+  catch(e){ console.error(e); res.status(500).json({ok:false,erro:'Erro ao listar os casais.'}); }
 });
 
-function mapearCasal(casal) {
-  return {
-    id: casal.id,
-    nome1: casal.nome1,
-    nome2: casal.nome2,
-    nome: `${casal.nome1} & ${casal.nome2}`,
-    email: casal.email,
-    dataCasamento: casal.data_casamento,
-    telefone: casal.telefone || '',
-    convidados: casal.convidados ?? null,
-    estado: casal.estado || 'ativo',
-    notas: casal.notas || '',
-    criadoEm: casal.criado_em
-  };
-}
-
-router.get('/admin/casais', exigirAutenticacao, exigirTipo('admin'), async (req, res) => {
-  try {
-    const casais = await sql`
-      SELECT id, nome1, nome2, email, data_casamento,
-             telefone, convidados, estado, notas, criado_em
-      FROM casais
-      ORDER BY id DESC
-    `;
-
-    res.json({ ok: true, casais: casais.map(mapearCasal) });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, erro: 'Erro ao listar os casais.' });
-  }
+router.patch('/admin/casais/:id', ...adminAuth, async (req,res)=>{
+  const id=Number(req.params.id); if(!Number.isInteger(id)||id<=0)return res.status(400).json({ok:false,erro:'ID inválido.'});
+  try { const [c]=await sql`SELECT * FROM casais WHERE id=${id} LIMIT 1`; if(!c)return res.status(404).json({ok:false,erro:'Casal não encontrado.'}); const b=req.body||{}; const estado=String(b.estadoConta??b.estado_conta??c.estado_conta).trim(); if(!['ativo','inativo','pendente'].includes(estado))return res.status(400).json({ok:false,erro:'Estado da conta inválido.'}); await sql`UPDATE casais SET nome1=${String(b.nome1??c.nome1).trim()},nome2=${String(b.nome2??c.nome2).trim()},email=${String(b.email??c.email).trim().toLowerCase()},telefone=${b.telefone??c.telefone},data_casamento=${b.dataCasamento??c.data_casamento},foto_url=${b.fotoUrl??c.foto_url},cidade=${b.cidade??c.cidade},estado_conta=${estado} WHERE id=${id}`; const [u]=await sql`SELECT * FROM casais WHERE id=${id} LIMIT 1`; res.json({ok:true,casal:mapCasal(u)}); }
+  catch(e){console.error(e);res.status(e?.code==='23505'?409:500).json({ok:false,erro:e?.code==='23505'?'Email já utilizado.':'Não foi possível atualizar o casal.'});}
 });
 
-router.patch('/admin/casais/:id', exigirAutenticacao, exigirTipo('admin'), async (req, res) => {
-  const id = Number(req.params.id);
+router.delete('/admin/casais/:id', ...adminAuth, async (req,res)=>{const id=Number(req.params.id);try{const r=await sql`DELETE FROM casais WHERE id=${id} RETURNING id`;if(!r.length)return res.status(404).json({ok:false,erro:'Casal não encontrado.'});res.json({ok:true,mensagem:'Conta do casal eliminada.'});}catch(e){console.error(e);res.status(500).json({ok:false,erro:'Não foi possível eliminar o casal.'});}});
 
-  if (!Number.isInteger(id) || id <= 0) {
-    return res.status(400).json({ ok: false, erro: 'ID do casal inválido.' });
-  }
-
-  try {
-    const [atual] = await sql`
-      SELECT * FROM casais WHERE id = ${id} LIMIT 1
-    `;
-
-    if (!atual) {
-      return res.status(404).json({ ok: false, erro: 'Casal não encontrado.' });
-    }
-
-    const nome1 = String(req.body?.nome1 ?? atual.nome1).trim();
-    const nome2 = String(req.body?.nome2 ?? atual.nome2).trim();
-    const email = String(req.body?.email ?? atual.email).trim().toLowerCase();
-    const dataCasamento = req.body?.dataCasamento ?? atual.data_casamento ?? null;
-    const telefone = req.body?.telefone ?? atual.telefone ?? null;
-    const convidados =
-      req.body?.convidados === '' || req.body?.convidados == null
-        ? null : Number(req.body.convidados);
-    const estado = String(req.body?.estado ?? atual.estado ?? 'ativo').trim();
-    const notas = String(req.body?.notas ?? atual.notas ?? '').trim();
-
-    if (!nome1 || !nome2 || !email) {
-      return res.status(400).json({
-        ok: false,
-        erro: 'Nome dos dois noivos e e-mail são obrigatórios.'
-      });
-    }
-
-    if (convidados !== null && (!Number.isInteger(convidados) || convidados < 0)) {
-      return res.status(400).json({ ok: false, erro: 'Número de convidados inválido.' });
-    }
-
-    if (!['ativo', 'pendente', 'inativo'].includes(estado)) {
-      return res.status(400).json({ ok: false, erro: 'Estado da conta inválido.' });
-    }
-
-    await sql`
-      UPDATE casais
-      SET nome1 = ${nome1},
-          nome2 = ${nome2},
-          email = ${email},
-          data_casamento = ${dataCasamento || null},
-          telefone = ${telefone || null},
-          convidados = ${convidados},
-          estado = ${estado},
-          notas = ${notas || null}
-      WHERE id = ${id}
-    `;
-
-    const [atualizado] = await sql`
-      SELECT id, nome1, nome2, email, data_casamento,
-             telefone, convidados, estado, notas, criado_em
-      FROM casais WHERE id = ${id} LIMIT 1
-    `;
-
-    res.json({ ok: true, casal: mapearCasal(atualizado) });
-  } catch (err) {
-    console.error(err);
-    if (err?.code === '23505') {
-      return res.status(409).json({
-        ok: false,
-        erro: 'Já existe outro casal com esse e-mail.'
-      });
-    }
-    res.status(500).json({ ok: false, erro: 'Não foi possível atualizar o casal.' });
-  }
-});
-
-router.delete('/admin/casais/:id', exigirAutenticacao, exigirTipo('admin'), async (req, res) => {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    return res.status(400).json({ ok: false, erro: 'ID do casal inválido.' });
-  }
-
-  try {
-    const resultado = await sql`
-      DELETE FROM casais WHERE id = ${id} RETURNING id
-    `;
-
-    if (!resultado.length) {
-      return res.status(404).json({ ok: false, erro: 'Casal não encontrado.' });
-    }
-
-    res.json({ ok: true, mensagem: 'Conta do casal eliminada.' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, erro: 'Não foi possível eliminar o casal.' });
-  }
-});
-
+router.post('/me/password', ...casalAuth, async (req,res)=>{const atual=String(req.body?.passwordAtual||''), nova=String(req.body?.novaPassword||'');if(nova.length<8)return res.status(400).json({ok:false,erro:'A nova palavra-passe deve ter pelo menos 8 caracteres.'});try{const [c]=await sql`SELECT password_hash FROM casais WHERE id=${Number(req.usuario.id)} LIMIT 1`;if(!c||!(await bcrypt.compare(atual,c.password_hash)))return res.status(401).json({ok:false,erro:'Palavra-passe atual incorreta.'});const hash=await bcrypt.hash(nova,10);await sql`UPDATE casais SET password_hash=${hash} WHERE id=${Number(req.usuario.id)}`;res.json({ok:true,mensagem:'Palavra-passe alterada.'});}catch(e){console.error(e);res.status(500).json({ok:false,erro:'Não foi possível alterar a palavra-passe.'});}});
 export default router;

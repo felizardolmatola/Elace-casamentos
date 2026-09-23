@@ -1,68 +1,26 @@
 import { Router } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { login, loginCasal, loginFornecedor, registarCasal, registarFornecedor } from '../controllers/authController.js';
+import { exigirAutenticacao } from '../middlewares/auth.js';
 import { sql } from '../config/db.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-troca-isto-em-producao';
-
-router.post('/login', async (req, res) => {
-  const email = String(req.body?.email || '').trim().toLowerCase();
-  const password = String(req.body?.password || '');
-
-  if (!email || !password) {
-    return res.status(400).json({
-      ok: false,
-      erro: 'E-mail e senha são obrigatórios.'
-    });
-  }
-
+router.post('/login', login);
+router.post('/registar/casal', registarCasal);
+router.post('/registar/fornecedor', registarFornecedor);
+router.post('/login/casal', loginCasal);
+router.post('/login/fornecedor', loginFornecedor);
+router.get('/me', exigirAutenticacao, async (req, res) => {
   try {
-    const [casal] = await sql`
-      SELECT id, nome1, nome2, email, password_hash
-      FROM casais WHERE LOWER(email) = ${email} LIMIT 1
-    `;
-
-    if (casal) {
-      const valido = await bcrypt.compare(password, casal.password_hash);
-      if (valido) {
-        const token = jwt.sign(
-          { id: casal.id, tipo: 'casal', email: casal.email },
-          JWT_SECRET,
-          { expiresIn: '8h' }
-        );
-        return res.json({ ok: true, token, tipo: 'casal' });
-      }
+    if (req.usuario.tipo === 'casal') {
+      const [r] = await sql`SELECT * FROM casais WHERE id = ${Number(req.usuario.id)} LIMIT 1`;
+      return r ? res.json({ ok: true, tipo: 'casal', usuario: r }) : res.status(404).json({ ok: false, erro: 'Utilizador não encontrado.' });
     }
-
-    const [fornecedor] = await sql`
-      SELECT id, email, password_hash
-      FROM fornecedores WHERE LOWER(email) = ${email} LIMIT 1
-    `;
-
-    if (fornecedor && fornecedor.password_hash) {
-      const valido = await bcrypt.compare(password, fornecedor.password_hash);
-      if (valido) {
-        const token = jwt.sign(
-          { id: fornecedor.id, tipo: 'fornecedor', email: fornecedor.email },
-          JWT_SECRET,
-          { expiresIn: '8h' }
-        );
-        return res.json({ ok: true, token, tipo: 'fornecedor' });
-      }
+    if (req.usuario.tipo === 'fornecedor') {
+      const [r] = await sql`SELECT * FROM fornecedores WHERE id = ${Number(req.usuario.id)} LIMIT 1`;
+      return r ? res.json({ ok: true, tipo: 'fornecedor', usuario: r }) : res.status(404).json({ ok: false, erro: 'Utilizador não encontrado.' });
     }
-
-    return res.status(401).json({
-      ok: false,
-      erro: 'E-mail ou senha inválidos.'
-    });
-  } catch (err) {
-    console.error('POST /api/auth/login:', err);
-    return res.status(500).json({
-      ok: false,
-      erro: 'Erro ao realizar login.'
-    });
-  }
+    const [r] = await sql`SELECT id, nome, email, nivel, ativo FROM admins WHERE id = ${Number(req.usuario.id)} LIMIT 1`;
+    return r ? res.json({ ok: true, tipo: 'admin', usuario: r }) : res.status(404).json({ ok: false, erro: 'Administrador não encontrado.' });
+  } catch (err) { console.error(err); res.status(500).json({ ok: false, erro: 'Erro ao consultar a sessão.' }); }
 });
-
 export default router;

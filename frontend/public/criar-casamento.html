@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Criar casamento — Enlace</title>
+<script src="./api-config.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--azul:#0B4870;--texto:#1F1F1F;--fundo:#F7F9FA}
+*{box-sizing:border-box} html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--fundo);color:var(--texto);font-family:Inter,sans-serif;touch-action:manipulation}
+button,input,select,textarea{font-size:16px;touch-action:manipulation}
+.font-display{font-family:'Playfair Display',serif}.card{box-shadow:0 18px 55px rgba(11,72,112,.10)}
+.input{width:100%;border:1.5px solid #DDE5EA;background:#fff;border-radius:12px;padding:13px 14px;outline:none;transition:.2s}
+.input:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(11,72,112,.10)}
+.btn{background:var(--azul);color:white;border-radius:12px;padding:14px 20px;font-weight:700;transition:.2s}.btn:hover{transform:translateY(-1px);box-shadow:0 12px 25px rgba(11,72,112,.22)}.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+</style>
+</head>
+<body>
+<header class="bg-white border-b border-slate-100">
+  <div class="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+    <a href="./index.html" class="font-display text-2xl font-semibold" style="color:var(--azul)">Enlace</a>
+    <span class="text-sm text-slate-500">Passo 2 de 2</span>
+  </div>
+</header>
+
+<main class="min-h-[calc(100vh-73px)] flex items-center justify-center px-5 py-10">
+  <section class="card bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-10">
+    <div class="text-center mb-8">
+      <div class="mx-auto mb-4 w-14 h-14 rounded-full flex items-center justify-center text-2xl" style="background:#EAF2F7">💍</div>
+      <p class="uppercase tracking-[.2em] text-xs font-semibold mb-2" style="color:var(--azul)">O grande dia</p>
+      <h1 class="font-display text-3xl sm:text-4xl">Criar casamento</h1>
+      <p class="text-slate-500 mt-3">Agora vamos guardar os dados principais do seu casamento. Depois disso, você entra diretamente no seu painel.</p>
+    </div>
+
+    <div id="casalResumo" class="rounded-2xl p-4 mb-6" style="background:#F7FAFC"></div>
+
+    <form id="casamentoForm" class="space-y-5" novalidate>
+      <div>
+        <label for="dataCasamento" class="block text-sm font-semibold mb-2">Data do casamento</label>
+        <input id="dataCasamento" type="date" class="input" required>
+        <p class="text-xs text-slate-400 mt-2">Você poderá alterar esta data mais tarde no seu painel.</p>
+      </div>
+
+      <div>
+        <label for="cidade" class="block text-sm font-semibold mb-2">Cidade</label>
+        <input id="cidade" class="input" placeholder="Ex.: Beira" autocomplete="address-level2">
+      </div>
+
+      <div>
+        <label for="telefone" class="block text-sm font-semibold mb-2">Telefone <span class="font-normal text-slate-400">(opcional)</span></label>
+        <input id="telefone" type="tel" class="input" placeholder="Ex.: +258 84 000 0000" autocomplete="tel">
+      </div>
+
+      <p id="mensagem" class="hidden rounded-xl px-4 py-3 text-sm"></p>
+
+      <button id="criarBtn" class="btn w-full" type="submit">Criar casamento e ir ao meu painel</button>
+    </form>
+
+    <p class="text-center text-xs text-slate-400 mt-6">Os dados ficam associados à sua conta de casal.</p>
+  </section>
+</main>
+
+<script>
+(function(){
+  const API_BASE = window.ENLACE_API_BASE || 'http://localhost:8080/api';
+  const token = localStorage.getItem('enlace_token');
+  const tipo = localStorage.getItem('enlace_tipo');
+  const resumo = document.getElementById('casalResumo');
+  const form = document.getElementById('casamentoForm');
+  const data = document.getElementById('dataCasamento');
+  const cidade = document.getElementById('cidade');
+  const telefone = document.getElementById('telefone');
+  const btn = document.getElementById('criarBtn');
+  const msg = document.getElementById('mensagem');
+
+  if(!token || tipo !== 'casal'){
+    window.location.replace('./login.html');
+    return;
+  }
+
+  function mostrarMensagem(texto, erro){
+    msg.textContent = texto;
+    msg.classList.remove('hidden');
+    msg.className = 'rounded-xl px-4 py-3 text-sm ' + (erro ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700');
+  }
+
+  async function carregarCasal(){
+    try{
+      const r = await fetch(`${API_BASE}/casal/me`, {headers:{Authorization:`Bearer ${token}`}});
+      const d = await r.json().catch(()=>({}));
+      if(!r.ok || !d.ok) throw new Error(d.erro || 'Sessão inválida.');
+      const c = d.casal;
+      resumo.innerHTML = `<p class="text-xs uppercase tracking-wider font-semibold text-slate-400">Seu casamento</p><p class="font-display text-xl mt-1">${escapeHtml(c.nome1)} &amp; ${escapeHtml(c.nome2)}</p><p class="text-sm text-slate-500 mt-1">${escapeHtml(c.email || '')}</p>`;
+      if(c.dataCasamento) data.value = String(c.dataCasamento).slice(0,10);
+      if(c.cidade) cidade.value = c.cidade;
+      if(c.telefone) telefone.value = c.telefone;
+    }catch(e){
+      localStorage.removeItem('enlace_token');
+      localStorage.removeItem('enlace_tipo');
+      window.location.replace('./login.html');
+    }
+  }
+
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(!data.value){mostrarMensagem('Informe a data do casamento.', true); data.focus(); return;}
+    btn.disabled = true; btn.textContent = 'A criar casamento…'; msg.classList.add('hidden');
+    try{
+      const r = await fetch(`${API_BASE}/casal/me`, {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},
+        body:JSON.stringify({dataCasamento:data.value,cidade:cidade.value.trim()||null,telefone:telefone.value.trim()||null})
+      });
+      const d = await r.json().catch(()=>({}));
+      if(!r.ok || !d.ok) throw new Error(d.erro || (d.erros && Object.values(d.erros)[0]) || 'Não foi possível criar o casamento.');
+      localStorage.setItem('enlace_usuario', JSON.stringify(d.casal));
+      mostrarMensagem('Casamento criado com sucesso! Abrindo seu painel…', false);
+      setTimeout(()=>window.location.replace('./dashboard.html'), 700);
+    }catch(e){
+      mostrarMensagem(e.message, true);
+      btn.disabled = false; btn.textContent = 'Criar casamento e ir ao meu painel';
+    }
+  });
+
+  carregarCasal();
+})();
+</script>
+</body>
+</html>
