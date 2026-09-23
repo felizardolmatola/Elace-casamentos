@@ -119,6 +119,121 @@
   }
   #toastSucesso.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
+
+<style id="button-contrast-fix">
+
+/* === Correção de contraste dos botões === */
+button,
+a[role="button"],
+.btn-gold,
+.btn-outline-gold,
+.cat-tab,
+.cost-toggle-btn,
+.account-toggle-btn,
+.cat-chip,
+.cost-chip {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.btn-gold {
+  background: #0B4870 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0B4870 !important;
+  font-weight: 600;
+}
+
+.btn-gold:hover,
+.btn-gold:focus-visible {
+  background: #083B5C !important;
+  color: #FFFFFF !important;
+}
+
+.btn-outline-gold {
+  background: #FFFFFF !important;
+  color: #0B4870 !important;
+  border: 1.5px solid #0B4870 !important;
+  font-weight: 600;
+}
+
+.btn-outline-gold:hover,
+.btn-outline-gold:focus-visible {
+  background: #EAF3F8 !important;
+  color: #073A59 !important;
+}
+
+.cat-tab {
+  background: #FFFFFF;
+  color: #1F1F1F !important;
+  border-color: #0B4870 !important;
+  font-weight: 600;
+}
+
+.cat-tab.active {
+  background: #0B4870 !important;
+  color: #FFFFFF !important;
+  border-color: #0B4870 !important;
+}
+
+.cost-toggle-btn,
+.account-toggle-btn {
+  color: #444444 !important;
+  font-weight: 600;
+}
+
+.cost-toggle-btn.active,
+.account-toggle-btn.active {
+  background: #FFFFFF !important;
+  color: #0B4870 !important;
+  font-weight: 700;
+  border: 1px solid #0B4870;
+}
+
+.cat-chip,
+.cost-chip {
+  background: #FFFFFF;
+  color: #1F1F1F !important;
+  border-color: #667784 !important;
+  font-weight: 600;
+}
+
+.cat-chip:hover,
+.cost-chip:hover {
+  background: #EAF3F8 !important;
+  color: #073A59 !important;
+  border-color: #0B4870 !important;
+}
+
+.cat-chip.selected {
+  background: #0B4870 !important;
+  color: #FFFFFF !important;
+  border-color: #0B4870 !important;
+}
+
+.cost-chip.selected {
+  background: #EAF3F8 !important;
+  color: #073A59 !important;
+  border-color: #0B4870 !important;
+  font-weight: 700;
+}
+
+/* Botões comuns do Tailwind com texto branco sobre fundos claros */
+button.bg-white.text-white,
+a.bg-white.text-white {
+  color: #1F1F1F !important;
+}
+
+/* Foco visível para acessibilidade */
+button:focus-visible,
+a[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(11,72,112,.35);
+  outline-offset: 2px;
+}
+
+</style>
 </head>
 <body class="antialiased">
 

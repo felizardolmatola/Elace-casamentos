@@ -61,6 +61,25 @@
     .tab-btn:hover { color: #1F1F1F; }
     .tab-btn.active { color: var(--azul-claro); border-bottom-color: var(--azul-claro); }
   </style>
+    /* Ajuste de contraste e acessibilidade dos botões */
+    .btn-primary { background:#0B4870 !important; color:#FFFFFF !important; border:1px solid #0B4870 !important; font-weight:600; }
+    .btn-primary:hover, .btn-primary:focus-visible { background:#083B5C !important; color:#FFFFFF !important; }
+    .btn-outline { background:#FFFFFF !important; color:#0B4870 !important; border:1.5px solid #0B4870 !important; font-weight:600; }
+    .btn-outline:hover, .btn-outline:focus-visible { background:#EAF3F8 !important; color:#073A59 !important; }
+    .btn-ghost { color:#1F1F1F !important; }
+    .btn-ghost:hover, .btn-ghost:focus-visible { color:#073A59 !important; background:#EAF3F8 !important; }
+    .btn-danger { color:#A61B16 !important; font-weight:600; }
+    .btn-danger:hover, .btn-danger:focus-visible { background:#FDEDEC !important; color:#8B1511 !important; }
+    .tab-btn { color:#555555 !important; }
+    .tab-btn:hover { color:#1F1F1F !important; background:#F5F5F5; }
+    .tab-btn.active { color:#0B4870 !important; border-bottom-color:#0B4870 !important; }
+    .cat-row.active { background:#EAF3F8 !important; color:#073A59 !important; border-color:#0B4870 !important; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline:3px solid #0B4870 !important; outline-offset:2px; }
+    @media (max-width: 640px) {
+      .btn-primary, .btn-outline, .btn-ghost, .btn-danger { min-height:40px; }
+      #app header .tab-btn { padding-left:12px; padding-right:12px; }
+    }
+
 </head>
 
 <body class="antialiased">
