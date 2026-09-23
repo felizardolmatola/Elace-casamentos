@@ -553,6 +553,39 @@
     max-width: 230px;
   }
 }
+
+  /* Ajustes finais do cabeçalho no telemóvel */
+  header #mobileMenuBtn {
+    margin-right: 12px !important;
+  }
+  header a[href="/index.html"] {
+    margin-right: auto !important;
+  }
+  header a[href="/index.html"] img {
+    height: 56px !important;
+    max-height: 62px !important;
+    max-width: 145px !important;
+  }
+  #headerEntrarWrapper a {
+    min-height: 42px !important;
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+  #headerEntrarWrapper .entrar-icon {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  #headerEntrarDropdownBtn {
+    width: 34px !important;
+    min-height: 42px !important;
+  }
+
+  @media (max-width: 359px) {
+    header #mobileMenuBtn { margin-right: 8px !important; }
+    header a[href="/index.html"] img { height: 52px !important; max-width: 128px !important; }
+    #headerEntrarWrapper a { padding: 9px 10px !important; font-size: 12px !important; }
+    #headerEntrarDropdownBtn { width: 31px !important; }
+  }
 </style>
 
 </head>
@@ -924,7 +957,7 @@
   </section>
 
   <!-- CARDS DE FUNCIONALIDADES -->
-  <section id="recursos" class="reveal py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-mist">
+  <section id="recursos" class="py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-mist">
     <div class="max-w-7xl mx-auto">
       <div class="text-center max-w-xl mx-auto mb-16">
         <p class="uppercase tracking-[0.25em] text-xs font-semibold text-primary">Tudo organizado</p>
