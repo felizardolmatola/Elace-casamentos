@@ -946,7 +946,7 @@ body .btn-outline-simple {
         </a>
         <a id="heroPanelBtn" href="/dashboard.html"
           class="inline-block px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base rounded font-semibold btn-gold">
-          Meu painel
+          Começar a planejar
         </a>
       </div>
     </div>
@@ -2583,7 +2583,24 @@ body .btn-outline-simple {
 
       const painelHref = tipo === 'fornecedor' ? '/dashboard-fornecedor.html' : '/dashboard.html';
       const heroPanel = document.getElementById('heroPanelBtn');
-      if (heroPanel) heroPanel.href = painelHref;
+
+      // Botão do hero (após cadastro/login):
+      //  - casal: "Começar a planejar" → criar-casamento (sem data) ou dashboard (com data)
+      //  - fornecedor: mantém "Meu painel"
+      function atualizarBotaoHero(u) {
+        if (!heroPanel) return;
+        if (tipo === 'casal') {
+          const temData = !!(u && u.dataCasamento);
+          heroPanel.textContent = 'Começar a planejar';
+          heroPanel.href = temData ? '/dashboard.html' : '/criar-casamento.html';
+        } else {
+          heroPanel.textContent = 'Meu painel';
+          heroPanel.href = painelHref;
+        }
+      }
+      let usuarioInicial = {};
+      try { usuarioInicial = JSON.parse(localStorage.getItem('enlace_usuario') || '{}'); } catch (_) {}
+      atualizarBotaoHero(usuarioInicial);
 
       const section = document.getElementById('weddingCountdown');
       if (tipo !== 'casal' || !section) return; // só casais têm data de casamento
@@ -2623,6 +2640,7 @@ body .btn-outline-simple {
         const d = parseData(u && u.dataCasamento);
         dataAtual = d;
         $('wcPanelLink').href = painelHref;
+        atualizarBotaoHero(u);
         if (!d) {
           $('wcWithDate').classList.add('hidden');
           $('wcNoDate').classList.remove('hidden');
