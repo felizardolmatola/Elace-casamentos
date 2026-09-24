@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Painel do Fornecedor — Enlace</title>
+<title>Painel do Fornecedor — Elace casamentos</title>
 <script src="./api-config.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="./assets/img/icons/icon.png">
 <style>
   :root{
@@ -138,14 +138,71 @@ textarea:focus-visible {
 }
 
 </style>
+<style id="brand-logo">
+/* LOGOTIPO EM TEXTO/SVG */
+#brandLogo {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #111; line-height: 1; text-decoration: none; user-select: none; flex-shrink: 0;
+}
+#brandLogo .brand-top { display: inline-flex; align-items: center; gap: 5px; }
+#brandLogo .brand-rings { height: 32px; width: auto; display: block; }
+#brandLogo .brand-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 500; font-size: 32px; letter-spacing: -0.01em; line-height: 1; }
+#brandLogo .brand-sub { font-family: 'Playfair Display', Georgia, serif; font-weight: 500; font-size: 11px; letter-spacing: .04em; margin-top: 2px; }
+/* Divisor e slogan só a partir de ecrãs ≥ 640px (no telemóvel ficariam ilegíveis) */
+#brandLogo .brand-divider, #brandLogo .brand-tag { display: none; }
+@media (min-width: 640px) {
+  #brandLogo .brand-rings { height: 38px; }
+  #brandLogo .brand-name { font-size: 36px; }
+  #brandLogo .brand-sub { font-size: 12px; margin-top: 2px; }
+  #brandLogo .brand-divider { display: flex; align-items: center; gap: 4px; width: 100%; margin-top: 3px; }
+  #brandLogo .brand-line { flex: 1; height: 1.5px; display: block; }
+  #brandLogo .brand-line-l { background: linear-gradient(to right, transparent, #111); }
+  #brandLogo .brand-line-r { background: linear-gradient(to left, transparent, #111); }
+  #brandLogo .brand-heart { width: 8px; height: 8px; flex: none; }
+  #brandLogo .brand-tag { display: block; font-family: 'Inter', system-ui, sans-serif; font-weight: 400; font-size: 8.5px; letter-spacing: .01em; margin-top: 3px; white-space: nowrap; }
+}
+</style>
+
+<style id="desc-font">
+/* Textos pequenos de descrição e botões em Noto Sans (com Segoe UI como alternativa) */
+.font-desc,
+.leading-relaxed {
+  font-family: 'Noto Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+}
+
+body button,
+body .btn-gold,
+body .btn-outline-gold {
+  font-family: 'Noto Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+}
+</style>
 </head>
 <body>
 
   <!-- TOPBAR -->
   <header class="bg-white border-b border-[#EFEBE2]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 h-16 lg:h-20 flex items-center justify-between">
-      <a href="./index.html" class="flex items-center gap-2">
-        <img src="./assets/img/icons/logo.png" alt="Enlace" class="h-10 w-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 h-[76px] sm:h-20 flex items-center justify-between">
+      <a href="./index.html" id="brandLogo" aria-label="Elace casamentos — página inicial">
+        <span class="brand-top">
+          <!-- Anéis entrelaçados com diamante -->
+          <svg class="brand-rings" xmlns="http://www.w3.org/2000/svg" viewBox="2 4 138 114" fill="none"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="42" cy="80" r="32" stroke-width="8"/>
+            <circle cx="100" cy="72" r="32" stroke-width="8"/>
+            <path d="M64.6 57.4 A32 32 0 0 1 72.4 70.1" stroke="#fff" stroke-width="15" stroke-linecap="butt"/>
+            <path d="M64.6 57.4 A32 32 0 0 1 72.4 70.1" stroke-width="8" stroke-linecap="butt"/>
+            <path d="M84 10H116L128 24L100 42L72 24Z" stroke-width="4.5" fill="#fff"/>
+            <path d="M72 24H128M84 10L92 24L100 42L108 24L116 10M92 24L100 10L108 24" stroke-width="3.5"/>
+          </svg>
+          <span class="brand-name">Elace</span>
+        </span>
+        <span class="brand-sub">casamentos</span>
+        <span class="brand-divider" aria-hidden="true">
+          <i class="brand-line brand-line-l"></i>
+          <svg class="brand-heart" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.6 1.1 5.4 3.2 1.8-2.1 3.4-3.2 5.4-3.2 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>
+          <i class="brand-line brand-line-r"></i>
+        </span>
+        <span class="brand-tag">Planeje um casamento dos sonhos</span>
       </a>
       <button id="logoutBtn" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold border border-[#EFEBE2] text-[#888] hover:text-[#C0524A] hover:border-[#C0524A] transition-colors">
         Sair
@@ -158,7 +215,7 @@ textarea:focus-visible {
     <!-- Estado: sem sessão válida -->
     <div id="notAuth" class="hidden max-w-lg mx-auto card p-8 text-center">
       <h1 class="font-display text-2xl mb-3">Sessão não encontrada</h1>
-      <p class="text-[#888] mb-6">Entra com a tua conta de fornecedor para aceder ao painel.</p>
+      <p class="font-desc text-[#888] mb-6">Entra com a tua conta de fornecedor para aceder ao painel.</p>
       <a href="./login.html" class="inline-flex px-5 py-3 rounded-xl btn-gold font-semibold">Entrar</a>
     </div>
 
@@ -166,14 +223,14 @@ textarea:focus-visible {
     <section id="dashboard" class="hidden">
       <p class="uppercase tracking-[0.2em] text-xs font-semibold text-[#A3B18A] mb-2">Área profissional</p>
       <h1 id="nomeNegocio" class="font-display text-3xl sm:text-4xl">Painel do fornecedor</h1>
-      <p class="text-[#888] mt-3 max-w-2xl">Acompanha o estado do teu perfil e os dados que os noivos veem na Enlace.</p>
+      <p class="font-desc text-[#888] mt-3 max-w-2xl">Acompanha o estado do teu perfil e os dados que os noivos veem na Enlace.</p>
 
       <div class="grid md:grid-cols-3 gap-5 mt-8">
         <div class="card p-6 md:col-span-2">
           <h2 class="font-display text-xl mb-4">Estado do perfil</h2>
           <div class="flex items-center gap-3 flex-wrap">
             <span id="statusBadge" class="px-3 py-1 rounded-full text-sm font-semibold bg-[#FFF7E6] text-[#9A6B00]">Em revisão</span>
-            <span class="text-sm text-[#888]">A nossa equipa revê as informações antes da publicação na lista de fornecedores.</span>
+            <span class="font-desc text-sm text-[#888]">A nossa equipa revê as informações antes da publicação na lista de fornecedores.</span>
           </div>
         </div>
         <div class="card p-6">

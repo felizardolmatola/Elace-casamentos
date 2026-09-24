@@ -26,7 +26,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500&family=Noto+Sans:wght@400;500&display=swap"
     rel="stylesheet">
   <link rel="icon" type="image/png" href="/assets/img/icons/icon.png">
   <style>
@@ -371,6 +371,24 @@ header .nav-main #fornecedoresBtn span,
   font-family: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
   font-weight: 400;
   letter-spacing: 0;
+}
+</style>
+
+<style id="desc-font">
+/* Textos pequenos de descrição e botões em Noto Sans (com Segoe UI como alternativa) */
+.leading-relaxed,
+.faq-answer,
+.faq-answer p,
+.font-desc {
+  font-family: 'Noto Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+}
+
+/* Botões na mesma fonte (o menu do cabeçalho mantém a Open Sans definida em #nav-font) */
+body button,
+body .btn-gold,
+body .btn-outline-gold,
+body .btn-outline-simple {
+  font-family: 'Noto Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
 }
 </style>
 
@@ -905,7 +923,7 @@ header .nav-main #fornecedoresBtn span,
       <h1 class="font-display text-black text-3xl sm:text-5xl lg:text-6xl leading-tight max-w-3xl mx-auto">
         Planeje o seu casamento perfeito
       </h1>
-      <p class="text-black/85 mt-4 sm:mt-6 max-w-xl mx-auto text-sm sm:text-lg">
+      <p class="font-desc text-black/85 mt-4 sm:mt-6 max-w-xl mx-auto text-sm sm:text-lg">
         Convidados, orçamento e fornecedores — tudo num só lugar, do "sim" ao grande dia.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7 sm:mt-9">
@@ -1139,7 +1157,7 @@ header .nav-main #fornecedoresBtn span,
             <img loading="lazy" decoding="async" src="/assets/img/icons/casal-tracos.jpg" alt="" class="tracos-casal-img">
           </div>
           <h3 class="font-display text-2xl sm:text-2xl text-white leading-snug mb-3">Fique a par das novidades</h3>
-          <p class="text-white/85 text-sm sm:text-base mb-4 max-w-md">Subscreva e receba dicas de planeamento
+          <p class="font-desc text-white/85 text-sm sm:text-base mb-4 max-w-md">Subscreva e receba dicas de planeamento
             diretamente no seu email.</p>
           <form id="inspiraNewsletterForm" class="w-full max-w-md flex flex-col sm:flex-row gap-3 mt-0">
             <label for="inspiraEmail" class="sr-only"> o seu email</label>
@@ -2294,7 +2312,7 @@ header .nav-main #fornecedoresBtn span,
       </button>
 
       <h3 id="profileModalTitle" class="font-display text-2xl mb-1">Editar perfil</h3>
-      <p class="text-sm text-[#666] mb-6">Atualize a sua foto e os dados do perfil.</p>
+      <p class="font-desc text-sm text-[#666] mb-6">Atualize a sua foto e os dados do perfil.</p>
 
       <!-- FOTO DE PERFIL -->
       <div class="flex flex-col items-center mb-6">
