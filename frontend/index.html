@@ -601,6 +601,18 @@ body .btn-outline-simple {
   }
 </style>
 
+<!-- SESSÃO: marca cedo a página como "com sessão" para não piscar o botão Começar Agora -->
+<script>
+  try {
+    if (localStorage.getItem('enlace_token') && localStorage.getItem('enlace_tipo')) {
+      document.documentElement.classList.add('has-session');
+    }
+  } catch (_) {}
+</script>
+<style id="session-hero-buttons">
+  html.has-session #heroStartBtn { display: none !important; }
+  html:not(.has-session) #heroPanelBtn { display: none !important; }
+</style>
 </head>
 
 <body class="antialiased">
@@ -927,16 +939,56 @@ body .btn-outline-simple {
         Convidados, orçamento e fornecedores — tudo num só lugar, do "sim" ao grande dia.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7 sm:mt-9">
-        <a href="/registo.html"
+        <a id="heroStartBtn" href="/registo.html"
           class="inline-block px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base rounded font-semibold btn-gold">
           Começar Agora
+        </a>
+        <a id="heroPanelBtn" href="/dashboard.html"
+          class="inline-block px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base rounded font-semibold btn-gold">
+          Meu painel
         </a>
       </div>
     </div>
   </section>
 
+  <!-- DATA DO CASAMENTO: calendário em destaque + contagem regressiva (só para casais com sessão) -->
+  <section id="weddingCountdown" class="hidden px-4 sm:px-6 lg:px-10 py-10 sm:py-14 bg-white">
+    <div class="max-w-4xl mx-auto rounded-3xl border border-line bg-mist p-6 sm:p-10 shadow-sm">
+
+      <div id="wcWithDate" class="hidden flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+        <div class="shrink-0 w-36 sm:w-44 rounded-2xl overflow-hidden bg-white shadow-lg border border-line text-center">
+          <div id="wcMonth" class="bg-primary text-white py-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.2em]">—</div>
+          <div class="pt-3 sm:pt-4">
+            <div id="wcDay" class="font-display text-6xl sm:text-7xl leading-none text-ink">--</div>
+            <div id="wcWeekday" class="font-desc text-xs sm:text-sm text-[#777] mt-1">—</div>
+          </div>
+          <div id="wcYear" class="pt-1 pb-3 sm:pb-4 text-xs sm:text-sm font-semibold text-primary">----</div>
+        </div>
+        <div class="text-center sm:text-left flex-1 min-w-0">
+          <p class="uppercase tracking-[0.2em] text-[11px] sm:text-xs font-semibold text-primary/80">O grande dia</p>
+          <h2 id="wcNames" class="font-display text-2xl sm:text-3xl mt-1 break-words">—</h2>
+          <p id="wcBig" class="font-display text-primary text-4xl sm:text-5xl mt-3 leading-tight">—</p>
+          <p id="wcSub" class="font-desc text-sm text-[#666] mt-1"></p>
+          <div class="mt-5 flex flex-col sm:flex-row items-center gap-3 justify-center sm:justify-start">
+            <a id="wcPanelLink" href="/dashboard.html"
+              class="inline-block px-6 py-3 text-sm rounded font-semibold btn-gold">Meu painel</a>
+            <a href="/criar-casamento.html" class="text-sm font-semibold text-primary underline underline-offset-4">Alterar data</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="wcNoDate" class="hidden text-center">
+        <p class="uppercase tracking-[0.2em] text-[11px] sm:text-xs font-semibold text-primary/80">O grande dia</p>
+        <h2 class="font-display text-2xl sm:text-3xl mt-1">Ainda não definiu a data do casamento</h2>
+        <p class="font-desc text-sm text-[#666] mt-2">Crie o seu casamento para ver o calendário e a contagem regressiva aqui.</p>
+        <a href="/criar-casamento.html" class="inline-block mt-5 px-6 py-3 text-sm rounded font-semibold btn-gold">Criar casamento</a>
+      </div>
+
+    </div>
+  </section>
+
   <!-- CARDS DE FUNCIONALIDADES -->
-  <section id="recursos" class="py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-mist">
+  <section id="recursos" class="py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-white">
     <div class="max-w-7xl mx-auto">
       <div class="text-center max-w-xl mx-auto mb-16">
         <p class="uppercase tracking-[0.25em] text-xs font-semibold text-primary">Tudo organizado</p>
@@ -1203,7 +1255,7 @@ body .btn-outline-simple {
         </a>
 
         <a href="/fornecedores.html"
-          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-mist/40 hover:bg-mist/70 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
+          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-white hover:bg-mist/60 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
           <div class="h-56 sm:h-auto overflow-hidden">
             <img loading="lazy" decoding="async" src="/assets/img/fornecedores/fotografia.webp" alt="Fotógrafo a fotografar casal de noivos"
               class="img-blur w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -1233,7 +1285,7 @@ body .btn-outline-simple {
         </a>
 
         <a href="/fornecedores.html"
-          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-mist/40 hover:bg-mist/70 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
+          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-white hover:bg-mist/60 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
           <div class="h-56 sm:h-auto overflow-hidden">
             <img loading="lazy" decoding="async" src="/assets/img/fornecedores/dacoracao.webp" alt="Decoração de mesa de casamento"
               class="img-blur w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -1263,7 +1315,7 @@ body .btn-outline-simple {
         </a>
 
         <a href="/fornecedores.html"
-          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-mist/40 hover:bg-mist/70 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
+          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-white hover:bg-mist/60 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
           <div class="h-56 sm:h-auto overflow-hidden">
             <img loading="lazy" decoding="async" src="/assets/img/fornecedores/viaturas.webp" alt="Viaturas de luxo alinhadas para casamento"
               class="img-blur w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -1293,7 +1345,7 @@ body .btn-outline-simple {
         </a>
 
         <a href="/fornecedores.html"
-          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-mist/40 hover:bg-mist/70 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
+          class="fornecedor-row group grid sm:grid-cols-2 items-stretch bg-white hover:bg-mist/60 transition-all duration-300 rounded-xl overflow-hidden border border-[#E7EBEF] shadow-[0_2px_10px_-6px_rgba(11,72,112,0.10)] hover:border-[#D7E0E8] hover:shadow-[0_24px_48px_-22px_rgba(8,44,71,0.30)] hover:-translate-y-1">
           <div class="h-56 sm:h-auto overflow-hidden">
             <img loading="lazy" decoding="async" src="/assets/img/fornecedores/salao.webp" alt="Salão decorado para receção de casamento"
               class="img-blur w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -1593,7 +1645,7 @@ body .btn-outline-simple {
   </script>
 
   <!-- SOBRE NÓS / PERGUNTAS FREQUENTES -->
-  <section id="sobre-nos" class="reveal py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-mist">
+  <section id="sobre-nos" class="reveal py-14 sm:py-24 px-4 sm:px-6 lg:px-10 bg-white">
     <div class="max-w-5xl mx-auto">
       <div class="text-center max-w-2xl mx-auto mb-16">
         <p class="uppercase tracking-[0.25em] text-xs font-semibold text-primary">Sobre nós</p>
@@ -2518,6 +2570,94 @@ body .btn-outline-simple {
         successMsg.classList.remove('hidden');
         setTimeout(() => { closeModal(); }, 1400);
       });
+    })();
+  </script>
+
+  <script>
+    // BOTÃO "MEU PAINEL" + DATA DO CASAMENTO (calendário e contagem regressiva)
+    (function () {
+      const token = localStorage.getItem('enlace_token');
+      const tipo = localStorage.getItem('enlace_tipo');
+      if (!token || !tipo) return; // sem sessão: mantém "Começar Agora"
+
+      const painelHref = tipo === 'fornecedor' ? '/dashboard-fornecedor.html' : '/dashboard.html';
+      const heroPanel = document.getElementById('heroPanelBtn');
+      if (heroPanel) heroPanel.href = painelHref;
+
+      const section = document.getElementById('weddingCountdown');
+      if (tipo !== 'casal' || !section) return; // só casais têm data de casamento
+
+      const API_BASE = window.ENLACE_API_BASE || 'https://elace-casamentos.onrender.com/api';
+      const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const SEMANA = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+      const $ = id => document.getElementById(id);
+
+      function getUsuario() {
+        try { return JSON.parse(localStorage.getItem('enlace_usuario') || '{}'); } catch (_) { return {}; }
+      }
+      // Lê só ano-mês-dia (evita deslocar o dia por causa do fuso horário)
+      function parseData(v) {
+        const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || ''));
+        return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+      }
+      const plural = (n, a, b) => n === 1 ? a : b;
+
+      let dataAtual = null;
+
+      function atualizarContagem() {
+        if (!dataAtual) return;
+        const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        const n = Math.round((dataAtual - hoje) / 86400000); // dias de calendário que faltam
+        let grande, sub;
+        if (n > 1) { grande = 'Faltam ' + n + ' dias'; sub = 'para o seu casamento'; }
+        else if (n === 1) { grande = 'Falta 1 dia'; sub = 'Amanhã é o grande dia!'; }
+        else if (n === 0) { grande = 'Hoje é o grande dia!'; sub = 'Que seja inesquecível.'; }
+        else { grande = 'Parabéns, recém-casados!'; sub = 'O casamento foi há ' + (-n) + ' ' + plural(-n, 'dia', 'dias') + '.'; }
+        $('wcBig').textContent = grande;
+        $('wcSub').textContent = sub;
+      }
+
+      function render(u) {
+        section.classList.remove('hidden');
+        const d = parseData(u && u.dataCasamento);
+        dataAtual = d;
+        $('wcPanelLink').href = painelHref;
+        if (!d) {
+          $('wcWithDate').classList.add('hidden');
+          $('wcNoDate').classList.remove('hidden');
+          return;
+        }
+        $('wcNoDate').classList.add('hidden');
+        $('wcWithDate').classList.remove('hidden');
+        $('wcMonth').textContent = MESES[d.getMonth()];
+        $('wcDay').textContent = String(d.getDate()).padStart(2, '0');
+        $('wcWeekday').textContent = SEMANA[d.getDay()];
+        $('wcYear').textContent = d.getFullYear();
+        $('wcNames').textContent = [u.nome1, u.nome2].filter(Boolean).join(' & ') || u.nome || 'O seu casamento';
+        atualizarContagem();
+      }
+
+      // 1) mostra logo o que está guardado no navegador
+      render(getUsuario());
+      // 2) recalcula a cada minuto (o número muda sozinho à meia-noite)
+      setInterval(atualizarContagem, 60000);
+      // 3) atualiza com os dados mais recentes do servidor (ex.: data alterada noutro dispositivo)
+      fetch(API_BASE + '/casal/me', { headers: { Authorization: 'Bearer ' + token } })
+        .then(r => {
+          if (r.status === 401) { // sessão expirada
+            ['enlace_token', 'enlace_tipo', 'enlace_usuario'].forEach(k => localStorage.removeItem(k));
+            window.location.reload();
+            return null;
+          }
+          return r.ok ? r.json() : null;
+        })
+        .then(d => {
+          if (!d || !d.ok || !d.casal) return;
+          const novo = Object.assign({}, getUsuario(), d.casal);
+          localStorage.setItem('enlace_usuario', JSON.stringify(novo));
+          render(novo);
+        })
+        .catch(() => {});
     })();
   </script>
 
