@@ -414,21 +414,21 @@ body .btn-outline-gold {
 
           <form id="registoForm" class="mt-8 space-y-5" novalidate>
 
-            <!-- Nomes do casal -->
-            <div class="grid grid-cols-2 gap-3">
+            <!-- Nomes do casal (em coluna: parceiro, depois parceira) -->
+            <div class="space-y-5">
               <div>
-                <label for="nome1" class="block text-sm font-semibold mb-2">O vosso nome</label>
-                <input type="text" id="nome1" name="nome1" autocomplete="given-name"
-                       class="input-field w-full px-4 py-3 text-sm"
-                       placeholder="Marta" required>
-                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o vosso nome.</p>
-              </div>
-              <div>
-                <label for="nome2" class="block text-sm font-semibold mb-2">Nome do parceiro(a)</label>
-                <input type="text" id="nome2" name="nome2" autocomplete="off"
+                <label for="nome1" class="block text-sm font-semibold mb-2">Nome do parceiro</label>
+                <input type="text" id="nome1" name="nome1" autocomplete="off"
                        class="input-field w-full px-4 py-3 text-sm"
                        placeholder="Nuno" required>
-                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o nome do parceiro(a).</p>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o nome do parceiro.</p>
+              </div>
+              <div>
+                <label for="nome2" class="block text-sm font-semibold mb-2">Nome da parceira</label>
+                <input type="text" id="nome2" name="nome2" autocomplete="off"
+                       class="input-field w-full px-4 py-3 text-sm"
+                       placeholder="Marta" required>
+                <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indiquem o nome da parceira.</p>
               </div>
             </div>
 
@@ -512,17 +512,8 @@ body .btn-outline-gold {
 
           <form id="registoFornecedorForm" class="mt-8 space-y-5" novalidate>
 
-            <!-- Nome do negócio -->
-            <div>
-              <label for="nomeNegocio" class="block text-sm font-semibold mb-2">Nome do negócio</label>
-              <input type="text" id="nomeNegocio" name="nomeNegocio" autocomplete="organization"
-                     class="input-field w-full px-4 py-3 text-sm"
-                     placeholder="Ex: Florarte Exclusive" required>
-              <p class="error-msg text-xs mt-1.5 hidden" style="color:#C0524A">Indique o nome do negócio.</p>
-            </div>
-
-            <!-- Pessoa de contacto -->
-            <div class="grid grid-cols-2 gap-3">
+            <!-- Pessoa de contacto (em coluna: responsável, depois telefone) -->
+            <div class="space-y-5">
               <div>
                 <label for="responsavel" class="block text-sm font-semibold mb-2">Responsável</label>
                 <input type="text" id="responsavel" name="responsavel" autocomplete="name"
@@ -840,7 +831,6 @@ body .btn-outline-gold {
     // ===== FORMULÁRIO: FORNECEDOR =====
     (function(){
       const form = document.getElementById('registoFornecedorForm');
-      const nomeNegocio = document.getElementById('nomeNegocio');
       const responsavel = document.getElementById('responsavel');
       const telefone = document.getElementById('telefone');
       const email = document.getElementById('emailFornecedor');
@@ -880,7 +870,7 @@ body .btn-outline-gold {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       }
 
-      [nomeNegocio, responsavel, telefone, email, localizacao, preco, descricao, password].forEach(f =>
+      [responsavel, telefone, email, localizacao, preco, descricao, password].forEach(f =>
         f.addEventListener('input', () => setError(f, false))
       );
       confirmarPassword.addEventListener('input', () => {
@@ -895,7 +885,6 @@ body .btn-outline-gold {
 
         let valid = true;
 
-        if(!nomeNegocio.value.trim()){ setError(nomeNegocio, true); valid = false; }
         if(!responsavel.value.trim()){ setError(responsavel, true); valid = false; }
         if(!telefone.value.trim()){ setError(telefone, true); valid = false; }
         if(!validEmail(email.value.trim())){ setError(email, true); valid = false; }
@@ -930,7 +919,6 @@ body .btn-outline-gold {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            nomeNegocio: nomeNegocio.value.trim(),
             responsavel: responsavel.value.trim(),
             telefone: telefone.value.trim(),
             emailFornecedor: email.value.trim(),

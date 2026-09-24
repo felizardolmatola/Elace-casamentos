@@ -42,8 +42,9 @@ export async function registarCasal(req, res) {
 
 export async function registarFornecedor(req, res) {
   const b = req.body || {};
-  const nomeNegocio = clean(b.nomeNegocio ?? b.nome_negocio);
   const responsavel = clean(b.responsavel);
+  // O formulário já não pede o nome do negócio: se não vier, usa o nome do responsável.
+  const nomeNegocio = clean(b.nomeNegocio ?? b.nome_negocio) ?? responsavel;
   const telefone = clean(b.telefone);
   const email = b.emailFornecedor ?? b.email;
   const descricao = clean(b.descricao);
@@ -58,7 +59,6 @@ export async function registarFornecedor(req, res) {
   if (categoriaIdRaw != null && categoriaIdRaw !== '' && !Number.isInteger(categoriaId)) categoriaId = null;
 
   const erros = {};
-  if (!nomeNegocio) erros.nomeNegocio = 'Nome do negócio obrigatório.';
   if (!responsavel) erros.responsavel = 'Responsável obrigatório.';
   if (!validEmail(email)) erros.email = 'Email inválido.';
   if (!password || String(password).length < 8) erros.password = 'Mínimo de 8 caracteres.';
